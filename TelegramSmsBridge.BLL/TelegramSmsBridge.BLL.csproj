@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Observers\" />
+    <Folder Include="Subjects\" />
+  </ItemGroup>
+
 </Project>
