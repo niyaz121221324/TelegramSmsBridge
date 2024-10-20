@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35222.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelegramSmsBridge.API", "TelegramSmsBridge.API\TelegramSmsBridge.API.csproj", "{C394701C-77A8-465C-B2F2-1D33F1CE9FA0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelegramSmsBridge.BLL", "TelegramSmsBridge.BLL\TelegramSmsBridge.BLL.csproj", "{F2A066C0-CBCB-4ADB-9A57-8FA8CF2812B5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C394701C-77A8-465C-B2F2-1D33F1CE9FA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C394701C-77A8-465C-B2F2-1D33F1CE9FA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C394701C-77A8-465C-B2F2-1D33F1CE9FA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C394701C-77A8-465C-B2F2-1D33F1CE9FA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2A066C0-CBCB-4ADB-9A57-8FA8CF2812B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2A066C0-CBCB-4ADB-9A57-8FA8CF2812B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2A066C0-CBCB-4ADB-9A57-8FA8CF2812B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2A066C0-CBCB-4ADB-9A57-8FA8CF2812B5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3C5E8B1D-6CA8-46C5-83CF-DF2B6E6EE51F}
+	EndGlobalSection
+EndGlobal
