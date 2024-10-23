@@ -18,8 +18,8 @@ public class TelegramWebHookController : BaseApiController
     [HttpPost("webhook")]
     public async Task<IActionResult> Webhook([FromBody] Update update)
     {
-        // TODO: set webhook secret_token while setting it
         Request.Headers.TryGetValue("X-Telegram-Bot-Api-Secret-Token", out StringValues signature);
+
         if (string.IsNullOrEmpty(signature))
         {
             return Unauthorized("Unauthorized Request");
