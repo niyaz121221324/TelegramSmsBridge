@@ -9,43 +9,42 @@ namespace TelegramSmsBridge.API.Controllers;
 public class TelegramWebHookController : BaseApiController
 {
     private readonly ITelegramBotClient _botClient;
+    private readonly string _webhookSecret;
 
-    public TelegramWebHookController(ITelegramBotClient botClient)
+    public TelegramWebHookController(ITelegramBotClient botClient, IConfiguration configuration)
     {
         _botClient = botClient;
+        _webhookSecret = configuration["TelegramBotSettings:SecretToken"] ?? string.Empty;
     }
 
     [HttpPost("webhook")]
     public async Task<IActionResult> Webhook([FromBody] Update update)
     {
-        Request.Headers.TryGetValue("X-Telegram-Bot-Api-Secret-Token", out StringValues signature);
-
-        if (string.IsNullOrEmpty(signature))
+        if (!Request.Headers.TryGetValue("X-Telegram-Bot-Api-Secret-Token", out StringValues signature) ||
+            signature != _webhookSecret)
         {
             return Unauthorized("Unauthorized Request");
         }
 
-        if (update.Type == UpdateType.Message)
+        if (update.Type == UpdateType.Message && HasMessageText(update.Message))
         {
-            var message = update.Message;
-
-            if (message.Text != null)
-            {
-                switch (message.Text.Split(' ')[0])
-                {
-                    case "/start":
-                        await _botClient.SendTextMessageAsync(message.Chat.Id, "Welcome to the bot!");
-                        break;
-                    case "/help":
-                        await _botClient.SendTextMessageAsync(message.Chat.Id, "How can I help you?");
-                        break;
-                    default:
-                        await _botClient.SendTextMessageAsync(message.Chat.Id, "Unknown command.");
-                        break;
-                }
-            }
+            await HandleMessageAsync(update.Message!);
         }
 
         return Ok();
     }
+
+    private async Task HandleMessageAsync(Message message)
+    {
+        var responseText = message.Text?.Split(' ')[0] switch
+        {
+            "/start" => "Welcome to the bot!",
+            "/help" => "How can I help you?",
+            _ => "Unknown command."
+        };
+
+        await _botClient.SendTextMessageAsync(message.Chat.Id, responseText);
+    }
+
+    private static bool HasMessageText(Message? message) => message?.Text != null;
 }
