@@ -6,12 +6,12 @@ using Telegram.Bot.Types.Enums;
 
 namespace TelegramSmsBridge.API.Controllers;
 
-public class TelegramWebHookController : BaseApiController
+public class TelegramController : BaseApiController
 {
     private readonly ITelegramBotClient _botClient;
     private readonly string _webhookSecret;
 
-    public TelegramWebHookController(ITelegramBotClient botClient, IConfiguration configuration)
+    public TelegramController(ITelegramBotClient botClient, IConfiguration configuration)
     {
         _botClient = botClient;
         _webhookSecret = configuration["TelegramBotSettings:SecretToken"] ?? string.Empty;
