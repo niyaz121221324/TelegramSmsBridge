@@ -1,4 +1,6 @@
+using Microsoft.Extensions.Options;
 using Telegram.Bot;
+using TelegramSmsBridge.BLL.Models;
 
 namespace TelegramSmsBridge.API.Extensions;
 
@@ -17,15 +19,18 @@ public static class ApplicationServiceExtensions
 
     private static void ConfigureTelegramBotClient(IServiceCollection services, IConfiguration configuration)
     {
-        string? botToken = configuration["Telegram:BotToken"];
+        services.Configure<TelegramSettings>(configuration.GetSection(nameof(TelegramSettings)));
 
-        if (!string.IsNullOrEmpty(botToken))
+        services.AddSingleton<ITelegramBotClient>(provider =>
         {
-            services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
+            var botToken = provider.GetRequiredService<IOptions<TelegramSettings>>().Value.BotToken;
 
-            //services.AddHttpClient("TelegramSmsBridgeWebhook")
-            //    .RemoveAllLoggers()
-            //    .AddTypedClient<ITelegramBotClient>(httpClient => new TelegramBotClient(botToken, httpClient));
-        }
+            if (string.IsNullOrEmpty(botToken))
+            {
+                throw new InvalidOperationException("Bot token is not configured.");
+            }
+
+            return new TelegramBotClient(botToken);
+        });
     }
 }
