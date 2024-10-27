@@ -23,9 +23,9 @@ public static class ApplicationServiceExtensions
         {
             services.AddSingleton<ITelegramBotClient>(new TelegramBotClient(botToken));
 
-            services.AddHttpClient("TelegramSmsBridgeWebhook")
-                .RemoveAllLoggers()
-                .AddTypedClient<ITelegramBotClient>(httpClient => new TelegramBotClient(botToken, httpClient));
+            //services.AddHttpClient("TelegramSmsBridgeWebhook")
+            //    .RemoveAllLoggers()
+            //    .AddTypedClient<ITelegramBotClient>(httpClient => new TelegramBotClient(botToken, httpClient));
         }
     }
 }
