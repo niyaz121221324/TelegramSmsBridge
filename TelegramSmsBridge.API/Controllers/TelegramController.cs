@@ -1,27 +1,30 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Primitives;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using TelegramSmsBridge.BLL.Models;
 
 namespace TelegramSmsBridge.API.Controllers;
 
 public class TelegramController : BaseApiController
 {
     private readonly ITelegramBotClient _botClient;
-    private readonly string _webhookSecret;
+    private readonly TelegramSettings _telegramSettings;
 
-    public TelegramController(ITelegramBotClient botClient, IConfiguration configuration)
+    public TelegramController(ITelegramBotClient botClient, IOptions<TelegramSettings> telegramSettings,
+        IConfiguration configuration)
     {
         _botClient = botClient;
-        _webhookSecret = configuration["TelegramBotSettings:SecretToken"] ?? string.Empty;
+        _telegramSettings = telegramSettings.Value;
     }
 
     [HttpPost("webhook")]
     public async Task<IActionResult> Webhook([FromBody] Update update)
     {
         if (!Request.Headers.TryGetValue("X-Telegram-Bot-Api-Secret-Token", out StringValues signature) ||
-            signature != _webhookSecret)
+            signature != _telegramSettings.WebhookSecretToken)
         {
             return Unauthorized("Unauthorized Request");
         }
