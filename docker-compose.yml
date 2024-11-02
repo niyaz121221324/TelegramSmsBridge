@@ -1,0 +1,10 @@
+version: "3.8"
+
+services:
+  telegramsmsbridge.api:
+    image: ${DOCKER_REGISTRY-}telegramsmsbridgeapi
+    build:
+      context: .
+      dockerfile: TelegramSmsBridge.API/Dockerfile
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

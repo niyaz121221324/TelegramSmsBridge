@@ -12,6 +12,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["TelegramSmsBridge.API/TelegramSmsBridge.API.csproj", "TelegramSmsBridge.API/"]
+COPY ["TelegramSmsBridge.BLL/TelegramSmsBridge.BLL.csproj", "TelegramSmsBridge.BLL/"]
 RUN dotnet restore "./TelegramSmsBridge.API/TelegramSmsBridge.API.csproj"
 COPY . .
 WORKDIR "/src/TelegramSmsBridge.API"

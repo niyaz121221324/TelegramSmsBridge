@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelegramSmsBridge.API", "Te
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelegramSmsBridge.BLL", "TelegramSmsBridge.BLL\TelegramSmsBridge.BLL.csproj", "{F2A066C0-CBCB-4ADB-9A57-8FA8CF2812B5}"
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{EAC8A6E2-6D00-4D1C-AE20-D3777B8E33E9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{F2A066C0-CBCB-4ADB-9A57-8FA8CF2812B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F2A066C0-CBCB-4ADB-9A57-8FA8CF2812B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F2A066C0-CBCB-4ADB-9A57-8FA8CF2812B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EAC8A6E2-6D00-4D1C-AE20-D3777B8E33E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EAC8A6E2-6D00-4D1C-AE20-D3777B8E33E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EAC8A6E2-6D00-4D1C-AE20-D3777B8E33E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EAC8A6E2-6D00-4D1C-AE20-D3777B8E33E9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
