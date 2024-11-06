@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   telegramsmsbridge.api:
     image: ${DOCKER_REGISTRY-}telegramsmsbridgeapi
