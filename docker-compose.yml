@@ -4,16 +4,18 @@ services:
     build:
       context: .
       dockerfile: TelegramSmsBridge.API/Dockerfile
+    ports:
+      - "8080:8080"
   
   ngrok:
     image: ngrok/ngrok:latest
+    depends_on:
+      - telegramsmsbridge.api
     environment:
       NGROK_AUTHTOKEN: 2n9K1ObXBZA7uwnECLII6RtUEKu_6bUbeUWM1Kp23E3N8gG1f
     command:
       - "http"
       - "--url=donkey-large-rodent.ngrok-free.app"
-      - "5000"
+      - "http://host.docker.internal:8080"
     ports:
-      - 4040:4040
-    depends_on:
-      - telegramsmsbridge.api
+      - 4040:4040 
