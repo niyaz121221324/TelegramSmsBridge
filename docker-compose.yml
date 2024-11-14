@@ -9,11 +9,21 @@ services:
     ports:
       - "8080:8080"
     restart: always
+
+  nginx:
+    image: nginx:latest
+    depends_on:
+      - telegramsmsbridge.api
+    ports:
+      - "80:80"  # Expose NGINX on port 80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro  # Mount a custom NGINX configuration file
+    restart: always
   
   ngrok:
     image: ngrok/ngrok:latest
     depends_on:
-      - telegramsmsbridge.api
+      - nginx
     command:
       - "http"
       - "--url=donkey-large-rodent.ngrok-free.app"
