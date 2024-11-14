@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   telegramsmsbridge.api:
     image: ${DOCKER_REGISTRY-}telegramsmsbridgeapi
@@ -15,7 +17,7 @@ services:
     command:
       - "http"
       - "--url=donkey-large-rodent.ngrok-free.app"
-      - "8080"
+      - "telegramsmsbridge.api:8080"
     environment:
       NGROK_AUTHTOKEN: 2n9K1ObXBZA7uwnECLII6RtUEKu_6bUbeUWM1Kp23E3N8gG1f
     ports:
