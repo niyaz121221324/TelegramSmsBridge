@@ -29,6 +29,8 @@
    cd TelegramSmsBridge
 
    # Настройка и запуск Telegram SMS Bridge Bot
+   cd TelegramSmsBridge
+   docker compose up -d
 
 ## Настройка Ngrok
 
