@@ -6,7 +6,7 @@
 
 ## Возможности
 
-- **Перенаправление SMS в Telegram**: Получает SMS-сообщения и отправляет их в указанный чат Telegram.
+- **Перенаправление SMS в Telegram**: Получает Сообщения из Telegram чата и отправляет sms пользователя.
 - **Docker-упаковка**: Легко разворачивается с помощью Docker Compose.
 - **Реверс-прокси NGINX**: Обеспечивает безопасное и эффективное перенаправление трафика к API.
 - **Туннелирование с Ngrok**: Публикует локальный сервис в интернете.
@@ -27,3 +27,12 @@
    ```bash
    git clone https://github.com/yourusername/TelegramSmsBridge.git
    cd TelegramSmsBridge
+
+   # Настройка и запуск Telegram SMS Bridge Bot
+
+## Настройка Ngrok
+
+1. Замените `NGROK_AUTHTOKEN` в файле `docker-compose.yml` на ваш токен аутентификации Ngrok:
+   ```yaml
+   environment:
+     NGROK_AUTHTOKEN: ваш_токен_аутентификации
