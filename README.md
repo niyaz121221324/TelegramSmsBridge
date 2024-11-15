@@ -28,6 +28,6 @@
    ```bash
    git clone https://github.com/yourusername/TelegramSmsBridge.git
    cd TelegramSmsBridge
-2. **Запуск приложения
+2. **Запуск приложения**:
    ```bash
    docker compose up -d
