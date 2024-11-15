@@ -27,7 +27,7 @@ services:
     command:
       - "http"
       - "--url=donkey-large-rodent.ngrok-free.app"
-      - "http://telegramsmsbridge.api"
+      - "http://telegramsmsbridge.webservice"
     environment:
       NGROK_AUTHTOKEN: 2n9K1ObXBZA7uwnECLII6RtUEKu_6bUbeUWM1Kp23E3N8gG1f
     ports:
