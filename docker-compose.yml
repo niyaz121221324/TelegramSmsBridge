@@ -4,8 +4,6 @@ services:
     build:
       context: .
       dockerfile: TelegramSmsBridge.API/Dockerfile
-    ports:
-      - "8080:8080"
     container_name: telegramsmsbridge.api
     networks:
       - app_network
