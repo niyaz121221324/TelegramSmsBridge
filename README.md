@@ -30,4 +30,4 @@
    cd TelegramSmsBridge
 2. **Запуск приложения**:
    ```bash
-   docker compose up -d
+   docker compose up
