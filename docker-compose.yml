@@ -30,7 +30,7 @@ services:
     command:
       - "http"
       - "--url=donkey-large-rodent.ngrok-free.app"
-      - "http://api.smsmonitor.com"
+      - "http://api.prop.loc"
     environment:
       NGROK_AUTHTOKEN: 2n9K1ObXBZA7uwnECLII6RtUEKu_6bUbeUWM1Kp23E3N8gG1f
     ports:
@@ -43,7 +43,7 @@ services:
 networks:
   net:
     ipam:
-      driver: bridge
+      driver: default
       config:
         - subnet: 200.0.0.0/8
           gateway: 200.0.0.1
