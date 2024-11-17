@@ -12,6 +12,8 @@ services:
     image: nginx:latest
     depends_on:
       - telegramsmsbridge.api
+    links:
+      - "telegramsmsbridge.api"
     ports:
       - "80:80" 
     volumes:
