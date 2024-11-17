@@ -6,8 +6,7 @@ services:
       dockerfile: TelegramSmsBridge.API/Dockerfile
     container_name: telegramsmsbridge.api
     networks:
-      net:
-        ipv4_address: 200.0.0.2
+      - app_network
 
   nginx:
     image: nginx:latest
@@ -20,8 +19,7 @@ services:
     restart: always
     container_name: nginx
     networks:
-      net:
-        ipv4_address: 200.0.0.3
+      - app_network
   
   ngrok:
     image: ngrok/ngrok:latest
@@ -37,13 +35,8 @@ services:
       - 4040:4040 
     container_name: ngrok
     networks:
-      net:
-        ipv4_address: 200.0.0.4
+      - app_network
 
 networks:
-  net:
-    ipam:
-      driver: default
-      config:
-        - subnet: 200.0.0.0/8
-          gateway: 200.0.0.1
+  app_network:
+    driver: bridge
