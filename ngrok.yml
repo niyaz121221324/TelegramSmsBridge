@@ -1,0 +1,9 @@
+version: 2
+authtoken: 2n9K1ObXBZA7uwnECLII6RtUEKu_6bUbeUWM1Kp23E3N8gG1f
+update: false
+log: stdout
+
+tunnels:
+  nginx_proxy:
+    addr: nginx:8080
+    proto: http
