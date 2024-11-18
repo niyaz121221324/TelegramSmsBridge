@@ -7,7 +7,7 @@ services:
     container_name: telegramsmsbridge.api
     networks:
       - app_network
-
+    
   nginx:
     image: nginx:latest
     restart: unless-stopped
