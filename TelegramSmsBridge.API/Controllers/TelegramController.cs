@@ -20,6 +20,12 @@ public class TelegramController : BaseApiController
         _telegramSettings = telegramSettings.Value;
     }
 
+    [HttpGet]
+    public IActionResult Get()
+    {
+        return Ok("Telegram bot was started");
+    }
+
     [HttpPost("webhook")]
     public async Task<IActionResult> Webhook([FromBody] Update update)
     {

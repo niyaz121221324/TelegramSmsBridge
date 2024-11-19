@@ -1,9 +1,11 @@
 version: 2
 authtoken: 2n9K1ObXBZA7uwnECLII6RtUEKu_6bUbeUWM1Kp23E3N8gG1f
-update: false
+api_key: ak_2n3rU6lZBg1ruqH2Tl0Ya67c2TN
+update: true
 log: stdout
 
 tunnels:
   nginx_proxy:
-    addr: nginx:8080
+    addr: nginx:80
     proto: http
+    domain: glider-dear-hog.ngrok-free.app
