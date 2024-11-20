@@ -14,8 +14,7 @@ public class TelegramController : BaseApiController
     private readonly ITelegramBotClient _botClient;
     private readonly TelegramSettings _telegramSettings;
 
-    public TelegramController(ITelegramBotClient botClient, IOptions<TelegramSettings> telegramSettings,
-        IConfiguration configuration)
+    public TelegramController(ITelegramBotClient botClient, IOptions<TelegramSettings> telegramSettings)
     {
         _botClient = botClient;
         _telegramSettings = telegramSettings.Value;
@@ -30,8 +29,7 @@ public class TelegramController : BaseApiController
     [HttpPost("webhook")]
     public async Task<IActionResult> Webhook(Update update)
     {
-        if (!Request.Headers.TryGetValue("X-Telegram-Bot-Api-Secret-Token", out StringValues signature) ||
-            signature != _telegramSettings.WebhookSecretToken)
+        if (Request.Headers["X-Telegram-Bot-Api-Secret-Token"] != _telegramSettings.WebhookSecretToken)
         {
             return Unauthorized("Unauthorized Request");
         }
