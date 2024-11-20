@@ -4,6 +4,7 @@ using Microsoft.Extensions.Primitives;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
 using TelegramSmsBridge.BLL.Models;
 
 namespace TelegramSmsBridge.API.Controllers;
@@ -27,7 +28,7 @@ public class TelegramController : BaseApiController
     }
 
     [HttpPost("webhook")]
-    public async Task<IActionResult> Webhook([FromBody] Update update)
+    public async Task<IActionResult> Webhook(Update update)
     {
         if (!Request.Headers.TryGetValue("X-Telegram-Bot-Api-Secret-Token", out StringValues signature) ||
             signature != _telegramSettings.WebhookSecretToken)
@@ -35,7 +36,12 @@ public class TelegramController : BaseApiController
             return Unauthorized("Unauthorized Request");
         }
 
-        if (update.Type == UpdateType.Message && HasMessageText(update.Message))
+        if (update?.Message == null || string.IsNullOrEmpty(update.Message.Text))
+        {
+            return BadRequest("Invalid update structure: Message or text is missing.");
+        }
+
+        if (update.Type == UpdateType.Message)
         {
             await HandleMessageAsync(update.Message!);
         }
@@ -52,8 +58,6 @@ public class TelegramController : BaseApiController
             _ => "Unknown command."
         };
 
-        await _botClient.SendTextMessageAsync(message.Chat.Id, responseText);
+        await _botClient.SendMessage(message.Chat, responseText, replyMarkup: new ReplyKeyboardRemove());
     }
-
-    private static bool HasMessageText(Message? message) => message?.Text != null;
 }

@@ -13,7 +13,7 @@ public static class ApplicationServiceExtensions
     {
         // Регистрируем TelegramBotClient с использованием конфигурации
         ConfigureTelegramBotClient(services, configuration);
-
+ 
         return services;
     }
 
