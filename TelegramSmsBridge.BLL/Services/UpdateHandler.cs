@@ -33,6 +33,11 @@ public class UpdateHandler : IUpdateHandler
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        if (IsMessageFromBot(update))
+        {
+            return;
+        }
+
         switch (update)
         {
             case { Message: { } message }:
@@ -43,6 +48,11 @@ public class UpdateHandler : IUpdateHandler
                 await UnknownUpdateHandlerAsync(update);
                 break;
         }
+    }
+
+    private bool IsMessageFromBot(Update update)
+    {
+        return update.Message != null && update.Message.From != null && update.Message.From.IsBot;
     }
 
     private Task UnknownUpdateHandlerAsync(Update update)
