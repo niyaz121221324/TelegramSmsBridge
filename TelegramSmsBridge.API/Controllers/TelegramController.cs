@@ -1,23 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 using Telegram.Bot;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
 using TelegramSmsBridge.BLL.Models;
+using TelegramSmsBridge.BLL.Services;
 
 namespace TelegramSmsBridge.API.Controllers;
 
 public class TelegramController : BaseApiController
 {
-    private readonly ITelegramBotClient _botClient;
     private readonly TelegramSettings _telegramSettings;
+    private readonly ILogger<UpdateHandler> _logger;
 
-    public TelegramController(ITelegramBotClient botClient, IOptions<TelegramSettings> telegramSettings)
+    public TelegramController(IOptions<TelegramSettings> telegramSettings, ILogger<UpdateHandler> logger)
     {
-        _botClient = botClient;
         _telegramSettings = telegramSettings.Value;
+        _logger = logger;
     }
 
     [HttpGet]
@@ -27,35 +25,42 @@ public class TelegramController : BaseApiController
     }
 
     [HttpPost("webhook")]
-    public async Task<IActionResult> Webhook(Update update)
+    public async Task<IActionResult> Webhook(
+        [FromBody] Update update,
+        [FromServices] ITelegramBotClient bot,
+        [FromServices] UpdateHandler handleUpdateService,
+        CancellationToken ct)
     {
-        if (Request.Headers["X-Telegram-Bot-Api-Secret-Token"] != _telegramSettings.WebhookSecretToken)
+        if (!IsValidSecretToken(Request.Headers["X-Telegram-Bot-Api-Secret-Token"]))
         {
-            return Unauthorized("Unauthorized Request");
+            return Forbid();
         }
 
-        if (update?.Message == null || string.IsNullOrEmpty(update.Message.Text))
-        {
-            return BadRequest("Invalid update structure: Message or text is missing.");
-        }
-
-        if (update.Type == UpdateType.Message)
-        {
-            await HandleMessageAsync(update.Message!);
-        }
-
-        return Ok();
+        return await ProcessUpdateAsync(bot, update, handleUpdateService, ct);
     }
 
-    private async Task HandleMessageAsync(Message message)
+    private bool IsValidSecretToken(string? providedToken)
     {
-        var responseText = message.Text?.Split(' ')[0] switch
-        {
-            "/start" => "Welcome to the bot!",
-            "/help" => "How can I help you?",
-            _ => "Unknown command."
-        };
+        return providedToken == _telegramSettings.WebhookSecretToken;
+    }
 
-        await _botClient.SendMessage(message.Chat, responseText, replyMarkup: new ReplyKeyboardRemove());
+    private async Task<IActionResult> ProcessUpdateAsync(
+        ITelegramBotClient bot,
+        Update update,
+        UpdateHandler handleUpdateService,
+        CancellationToken ct)
+    {
+        try
+        {
+            await handleUpdateService.HandleUpdateAsync(bot, update, ct);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error 500 Internal server exception");
+
+            await handleUpdateService.HandleErrorAsync(bot, ex, Telegram.Bot.Polling.HandleErrorSource.HandleUpdateError, ct);
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
     }
 }
