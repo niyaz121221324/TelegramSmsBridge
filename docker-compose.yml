@@ -30,7 +30,7 @@ services:
       - "--config"
       - "/etc/ngrok.yml"
     volumes:
-      - ./ngrok.yml:/etc/ngrok.yml
+      - ./ngrok.yml:/etc/ngrok.yml:ro
     depends_on:
       - nginx
     ports:
