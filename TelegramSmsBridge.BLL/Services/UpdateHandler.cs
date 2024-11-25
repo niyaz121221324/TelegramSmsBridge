@@ -33,7 +33,7 @@ public class UpdateHandler : IUpdateHandler
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (IsMessageFromBot(update))
+        if (IsBotMessage(update))
         {
             return;
         }
@@ -50,7 +50,7 @@ public class UpdateHandler : IUpdateHandler
         }
     }
 
-    private bool IsMessageFromBot(Update update)
+    private bool IsBotMessage(Update update)
     {
         return update.Message != null && update.Message.From != null && update.Message.From.IsBot;
     }
