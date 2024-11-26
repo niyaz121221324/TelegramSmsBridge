@@ -26,10 +26,10 @@ public class NotificationContext
     }
 
     /// <summary>
-    /// Executes the notification strategy to send the message.
+    /// Выполняет стратегию уведомления для отправки сообщения.
     /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    /// <exception cref="InvalidOperationException">Thrown if the strategy is not set.</exception>
+    /// <returns>Задача, представляющая асинхронную операцию.</returns>
+    /// <exception cref="InvalidOperationException">Генерируется, если стратегия не установлена.</exception>
     public async Task SendMessageAsync()
     {
         if (_notifyStrategy == null)
