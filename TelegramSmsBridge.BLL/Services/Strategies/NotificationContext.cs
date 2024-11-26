@@ -4,7 +4,7 @@ namespace TelegramSmsBridge.BLL.Services.Strategies;
 
 public class NotificationContext
 {
-    private INotifyStrategy _notifyStrategy;
+    private INotifyStrategy? _notifyStrategy;
     private readonly Message _message;
 
     /// <summary>
