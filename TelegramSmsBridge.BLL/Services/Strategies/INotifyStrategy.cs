@@ -4,5 +4,5 @@ namespace TelegramSmsBridge.BLL.Services.Strategies;
 
 public interface INotifyStrategy
 {
-    Task SendNotification(Message message);
+    Task SendNotificationAsync(Message message);
 }
