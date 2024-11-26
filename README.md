@@ -26,7 +26,7 @@
 
 1. **Клонируйте репозиторий проекта**:
    ```bash
-   git clone https://github.com/yourusername/TelegramSmsBridge.git
+   git clone https://github.com/niyaz121221324/TelegramSmsBridge.git
    cd TelegramSmsBridge
 2. **Запуск приложения**:
    ```bash
