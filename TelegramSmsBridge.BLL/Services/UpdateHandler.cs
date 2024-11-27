@@ -68,7 +68,7 @@ public class UpdateHandler : IUpdateHandler
 
         if (message.Type == MessageType.Text)
         {
-            context.SetStrategy(new TextNotifyStrategy(_botClient));
+            context.SetStrategy(new TextNotificationStrategy(_botClient));
         }
 
         await context.SendMessageAsync();

@@ -4,7 +4,7 @@ namespace TelegramSmsBridge.BLL.Services.Strategies;
 
 public class NotificationContext
 {
-    private INotifyStrategy? _notifyStrategy;
+    private INotificationStrategy? _notifyStrategy;
     private readonly Message _message;
 
     /// <summary>
@@ -20,7 +20,7 @@ public class NotificationContext
     /// Устанавливает стратегию уведомления, которая будет использоваться.
     /// </summary>
     /// <param name="strategy">Стратегия уведомления.</param>
-    public void SetStrategy(INotifyStrategy strategy)
+    public void SetStrategy(INotificationStrategy strategy)
     {
         _notifyStrategy = strategy ?? throw new ArgumentNullException(nameof(strategy), "Strategy cannot be null.");
     }

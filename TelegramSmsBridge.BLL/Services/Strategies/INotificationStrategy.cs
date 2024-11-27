@@ -2,7 +2,7 @@ using Telegram.Bot.Types;
 
 namespace TelegramSmsBridge.BLL.Services.Strategies;
 
-public interface INotifyStrategy
+public interface INotificationStrategy
 {
     Task SendNotificationAsync(Message message);
 }
