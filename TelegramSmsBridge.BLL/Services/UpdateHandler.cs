@@ -10,12 +10,10 @@ namespace TelegramSmsBridge.BLL.Services;
 
 public class UpdateHandler : IUpdateHandler
 {
-    private readonly ITelegramBotClient _botClient;
     private readonly ILogger<UpdateHandler> _logger;
 
-    public UpdateHandler(ITelegramBotClient botClient, ILogger<UpdateHandler> logger)
+    public UpdateHandler(ILogger<UpdateHandler> logger)
     {
-        _botClient = botClient;
         _logger = logger;
     }
 
@@ -42,7 +40,7 @@ public class UpdateHandler : IUpdateHandler
         switch (update)
         {
             case { Message: { } message }:
-                await OnMessage(message);
+                await OnMessage(message, botClient);
                 break;
 
             default:
@@ -62,13 +60,13 @@ public class UpdateHandler : IUpdateHandler
         return Task.CompletedTask;
     }
 
-    private async Task OnMessage(Message message)
+    private async Task OnMessage(Message message, ITelegramBotClient botClient)
     {
         NotificationContext context = new NotificationContext(message);
 
         if (message.Type == MessageType.Text)
         {
-            context.SetStrategy(new TextNotificationStrategy(_botClient));
+            context.SetStrategy(new TextNotificationStrategy(botClient));
         }
 
         await context.SendMessageAsync();
