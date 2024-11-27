@@ -11,6 +11,7 @@ namespace TelegramSmsBridge.BLL.Services;
 public class UpdateHandler : IUpdateHandler
 {
     private readonly ILogger<UpdateHandler> _logger;
+    private Message? messageToRespondTo;
 
     public UpdateHandler(ILogger<UpdateHandler> logger)
     {
@@ -34,6 +35,7 @@ public class UpdateHandler : IUpdateHandler
 
         if (IsBotMessage(update))
         {
+            messageToRespondTo = update.Message;
             return;
         }
 
