@@ -3,7 +3,8 @@ using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.ReplyMarkups;
+using Telegram.Bot.Types.Enums;
+using TelegramSmsBridge.BLL.Services.Strategies;
 
 namespace TelegramSmsBridge.BLL.Services;
 
@@ -63,13 +64,13 @@ public class UpdateHandler : IUpdateHandler
 
     private async Task OnMessage(Message message)
     {
-        var responseText = message.Text?.Split(' ')[0] switch
-        {
-            "/start" => "Welcome to the bot!",
-            "/help" => "How can I help you?",
-            _ => "Unknown command."
-        };
+        NotificationContext context = new NotificationContext(message);
 
-        await _botClient.SendMessage(message.Chat, responseText, replyMarkup: new ReplyKeyboardRemove());
+        if (message.Type == MessageType.Text)
+        {
+            context.SetStrategy(new TextNotifyStrategy(_botClient));
+        }
+
+        await context.SendMessageAsync();
     }
 }
