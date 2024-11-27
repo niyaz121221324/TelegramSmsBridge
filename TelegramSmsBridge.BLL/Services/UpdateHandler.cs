@@ -68,7 +68,7 @@ public class UpdateHandler : IUpdateHandler
 
         if (message.Type == MessageType.Text)
         {
-            context.SetStrategy(new TextNotificationStrategy(botClient));
+            context.SetStrategy(new TelegramCommandResponseStrategy(botClient));
         }
 
         await context.SendMessageAsync();

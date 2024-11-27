@@ -4,11 +4,11 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace TelegramSmsBridge.BLL.Services.Strategies;
 
-class TextNotificationStrategy : INotificationStrategy
+class TelegramCommandResponseStrategy : INotificationStrategy
 {
     private readonly ITelegramBotClient _botClient;
 
-    public TextNotificationStrategy(ITelegramBotClient botClient)
+    public TelegramCommandResponseStrategy(ITelegramBotClient botClient)
     {
         _botClient = botClient;
     }
