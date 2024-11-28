@@ -11,11 +11,13 @@ namespace TelegramSmsBridge.BLL.Services;
 public class UpdateHandler : IUpdateHandler
 {
     private readonly ILogger<UpdateHandler> _logger;
+    private readonly TelegramHub _telegramHub;
     private Message? messageToRespondTo;
 
-    public UpdateHandler(ILogger<UpdateHandler> logger)
+    public UpdateHandler(ILogger<UpdateHandler> logger, TelegramHub telegramHub)
     {
         _logger = logger;
+        _telegramHub = telegramHub;
     }
 
     public async Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, HandleErrorSource source, CancellationToken cancellationToken)
@@ -68,7 +70,7 @@ public class UpdateHandler : IUpdateHandler
 
         if (message.Type == MessageType.Text)
         {
-            context.SetStrategy(new CommandResponseNotificationStrategy(botClient));
+            context.SetStrategy(new TextResponseNotificationStrategy(botClient, _telegramHub, messageToRespondTo));
         }
 
         await context.SendMessageAsync();

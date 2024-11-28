@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using Microsoft.AspNetCore.SignalR;
 using Telegram.Bot;
+using TelegramSmsBridge.BLL.Models;
 
 namespace TelegramSmsBridge.BLL.Services;
 
@@ -38,7 +39,7 @@ public class TelegramHub : Hub
     }
 
     // Отправляет сообщение пользователю, используя его ChatId.
-    public async Task SendMessageAsync(long chatId, string message)
+    public async Task SendMessageAsync(long chatId, SmsMessage message)
     {
         if (!Users.TryGetValue(chatId, out var connectionId) || string.IsNullOrEmpty(connectionId))
         {
