@@ -18,11 +18,6 @@ public class TelegramHub : Hub
     // Регистрирует пользователя по его userName пользователя в telegram, сохраняя его connection ID.
     public async Task RegisterUserAsync(string userName)
     {
-        if (string.IsNullOrEmpty(userName))
-        {
-            throw new ArgumentException("Username cannot be null or empty.", nameof(userName));
-        }
-
         var connectionId = Context.ConnectionId;
 
         if (string.IsNullOrEmpty(connectionId))
