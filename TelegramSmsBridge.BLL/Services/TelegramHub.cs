@@ -45,11 +45,6 @@ public class TelegramHub : Hub
     // Отправляет сообщение пользователю, используя его ChatId.
     public async Task SendMessageAsync(long chatId, string message)
     {
-        if (string.IsNullOrEmpty(message))
-        {
-            throw new ArgumentException("Message cannot be null or empty.", nameof(message));
-        }
-
         if (!Users.TryGetValue(chatId, out var connectionId) || string.IsNullOrEmpty(connectionId))
         {
             Console.WriteLine($"No connection found for chatId: {chatId}");
