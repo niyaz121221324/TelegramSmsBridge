@@ -1,18 +1,25 @@
 using Microsoft.AspNetCore.SignalR;
-using TelegramSmsBridge.BLL.Models;
+using Telegram.Bot;
 
 namespace TelegramSmsBridge.BLL.Services;
 
-public class NotificationHub : Hub
+public class TelegramHub : Hub
 {
-    private readonly static Dictionary<string, string> Users = new Dictionary<string, string>();
+    private readonly ITelegramBotClient _botClient;
+
+    private readonly static Dictionary<string, long> Users = new Dictionary<string, long>();
+
+    public TelegramHub(ITelegramBotClient botClient)
+    {
+        _botClient = botClient;
+    }
 
     public override Task OnConnectedAsync()
     {
         var userId = Context.GetHttpContext()?.Request.Query["userId"];
         if (!string.IsNullOrEmpty(userId))
         {
-            Users[Context.ConnectionId] = userId;
+            Users[Context.ConnectionId] = 0;
         }
 
         Console.WriteLine($"Пользователь {userId} подключился с ConnectionId: {Context.ConnectionId}");
@@ -24,10 +31,5 @@ public class NotificationHub : Hub
         Users.Remove(Context.ConnectionId);
         Console.WriteLine($"Пользователь отключился: {Context.ConnectionId}");
         return base.OnDisconnectedAsync(exception);
-    }
-
-    public async Task SendMessageAsync(string user, SmsMessage message)
-    {
-        await Clients.User(user).SendAsync("ReceiveMessage", user, message);
     }
 }

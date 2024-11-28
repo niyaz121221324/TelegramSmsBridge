@@ -17,6 +17,8 @@ public static class ApplicationServiceExtensions
         services.AddSingleton<UpdateHandler>();
         services.ConfigureTelegramBotMvc();
 
+        services.AddSignalR(); // Добавляем SignalR в DI контейнер
+
         return services;
     }
 

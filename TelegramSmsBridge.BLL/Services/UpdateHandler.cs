@@ -66,9 +66,6 @@ public class UpdateHandler : IUpdateHandler
     {
         NotificationContext context = new NotificationContext(message);
 
-        switch (message.Type)
-        
-
         if (message.Type == MessageType.Text)
         {
             context.SetStrategy(new CommandResponseNotificationStrategy(botClient));

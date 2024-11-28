@@ -1,4 +1,5 @@
 using TelegramSmsBridge.API.Extensions;
+using TelegramSmsBridge.BLL.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,5 +26,8 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Настраиваем маршрут для SignalR
+app.MapHub<TelegramHub>("/notificationHub");
 
 app.Run();
