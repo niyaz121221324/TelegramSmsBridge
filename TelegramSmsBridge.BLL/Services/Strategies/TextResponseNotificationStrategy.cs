@@ -20,6 +20,12 @@ class TextResponseNotificationStrategy : INotificationStrategy
 
     public async Task SendNotificationAsync(Message message)
     {
+        if (IsCommandMessage(message))
+        {
+            await SendCommandMessageAsync(message);
+            return;    
+        }
+
         var smsMessage = GetSmsMessageToSend(message);
 
         if (smsMessage != null)
@@ -29,7 +35,12 @@ class TextResponseNotificationStrategy : INotificationStrategy
 
         await SendCommandMessageAsync(message);
     }
-   
+
+    private bool IsCommandMessage(Message message)
+    {
+        return string.IsNullOrEmpty(message.Text) && (message.Text == "/start" || message.Text == "/help");
+    } 
+
     private SmsMessage? GetSmsMessageToSend(Message message)
     {
         if (message.ReplyToMessage != null && message.ReplyToMessage.Contact != null)
