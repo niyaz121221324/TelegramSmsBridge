@@ -11,9 +11,4 @@ public class SmsMessage
     /// Текст самого сообщения.
     /// </summary>
     public string MessageContent { get; set; } = string.Empty;
-
-    public override string ToString()
-    {
-        return $"PhoneNumber: {PhoneNumber}, MessageContent: {MessageContent}";
-    }
 }
