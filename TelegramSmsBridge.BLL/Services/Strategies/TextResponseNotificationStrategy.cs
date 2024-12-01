@@ -45,32 +45,15 @@ class TextResponseNotificationStrategy : INotificationStrategy
     {
         if (message.ReplyToMessage != null && message.ReplyToMessage.Contact != null)
         {
-            return CreateSmsMessageFrom(message.ReplyToMessage);
+            return SmsMessage.FromMessage(message.ReplyToMessage);
         }
 
         if (_messageToRespondTo != null && string.IsNullOrEmpty(_messageToRespondTo.Text) && _messageToRespondTo.Contact != null)
         {
-            return CreateSmsMessageFrom(_messageToRespondTo);
+            return SmsMessage.FromMessage(_messageToRespondTo);
         }
 
         return null;
-    }
-
-    private SmsMessage CreateSmsMessageFrom(Message message)
-    {
-        var phoneNumber = GetContact(message);
-        var messageContent = message.Text ?? string.Empty;
-
-        return new SmsMessage
-        {
-            PhoneNumber = phoneNumber,
-            MessageContent = messageContent
-        }; 
-    }
-
-    private string GetContact(Message? message)
-    {
-        return message != null && message.Contact != null ? message.Contact.PhoneNumber : string.Empty;
     }
 
     private async Task SendCommandMessageAsync(Message message)
