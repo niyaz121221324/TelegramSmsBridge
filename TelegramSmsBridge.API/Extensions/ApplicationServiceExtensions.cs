@@ -17,10 +17,26 @@ public static class ApplicationServiceExtensions
         services.AddSingleton<UpdateHandler>();
         services.ConfigureTelegramBotMvc();
 
+        // Настройка Cors для доступа к api
+        ConfigureCorsPolicy(services);
+
         services.AddSignalR(); // Добавляем SignalR в DI контейнер
         services.AddSingleton<TelegramHub>();
 
         return services;
+    }
+
+    private static void ConfigureCorsPolicy(this IServiceCollection services)
+    {
+        services.AddCors(opt =>
+        {
+            opt.AddPolicy("CorsPolicy", policy =>
+            {
+                policy.AllowAnyOrigin() 
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
     }
 
     private static void ConfigureTelegramBotClient(IServiceCollection services, IConfiguration configuration)
@@ -28,7 +44,7 @@ public static class ApplicationServiceExtensions
         var botConfigSection = configuration.GetSection(nameof(TelegramSettings));
         var botToken = botConfigSection.Get<TelegramSettings>()!.BotToken;
 
-        services.Configure<TelegramSettings>(configuration.GetSection(nameof(TelegramSettings)));
+        services.Configure<TelegramSettings>(botConfigSection);
 
         services.AddHttpClient("tgwebhook").RemoveAllLoggers().AddTypedClient<ITelegramBotClient>(httpClient =>
         {

@@ -21,13 +21,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Настраиваем маршрут для SignalR
+app.MapHub<TelegramHub>("/notificationHub");
+
+app.UseCors("CorsPolicy");
+
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
 app.MapControllers();
-
-// Настраиваем маршрут для SignalR
-app.MapHub<TelegramHub>("/notificationHub");
 
 app.Run();
