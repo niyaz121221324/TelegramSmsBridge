@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
@@ -11,7 +12,7 @@ public class TelegramController : BaseApiController
 {
     private readonly TelegramSettings _telegramSettings;
     private readonly ILogger<UpdateHandler> _logger;
-    private readonly Queue<Update> _receivedUpdates = new Queue<Update>();
+    private readonly HashSet<Update> _receivedUpdates = new HashSet<Update>(new UpdateComparerByUserName());
 
     public TelegramController(IOptions<TelegramSettings> telegramSettings, ILogger<UpdateHandler> logger)
     {
@@ -28,11 +29,6 @@ public class TelegramController : BaseApiController
     [HttpGet("getChatId")]
     public async Task<ActionResult<long>> GetChatId(string userName)
     {
-        if (_receivedUpdates.Count == 0)
-        {
-            return NotFound("No received updates available");
-        }
-
         var chatId = await GetChatIdForUserAsync(userName);
 
         if (!chatId.HasValue)
@@ -45,8 +41,13 @@ public class TelegramController : BaseApiController
 
     private Task<long?> GetChatIdForUserAsync(string userName)
     {
-        var update = _receivedUpdates.FirstOrDefault(u => u?.Message?.Chat.Username == userName);
+        var update = _receivedUpdates.FirstOrDefault(update => update?.Message?.Chat?.Username == userName);
 
+        if (update != null)
+        {
+            _receivedUpdates.Remove(update);
+        }
+            
         return Task.FromResult(update?.Message?.Chat.Id);
     }
 
@@ -61,8 +62,8 @@ public class TelegramController : BaseApiController
         {
             return Forbid();
         }
-        
-        _receivedUpdates.Enqueue(update);
+
+        _receivedUpdates.Add(update);
         return await ProcessUpdateAsync(bot, update, handleUpdateService, ct);
     }
 
