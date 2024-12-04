@@ -72,7 +72,7 @@ public class UpdateHandler : IUpdateHandler
         {
             context.SetStrategy(new TextResponseNotificationStrategy(botClient, _telegramHub, messageToRespondTo));
         }
-
+    
         await context.SendMessageAsync();
     }
 }

@@ -11,6 +11,7 @@ public class TelegramController : BaseApiController
 {
     private readonly TelegramSettings _telegramSettings;
     private readonly ILogger<UpdateHandler> _logger;
+    private readonly Queue<Update> _receivedUpdates = new Queue<Update>();
 
     public TelegramController(IOptions<TelegramSettings> telegramSettings, ILogger<UpdateHandler> logger)
     {
@@ -24,6 +25,31 @@ public class TelegramController : BaseApiController
         return Ok("Telegram bot was started");
     }
 
+    [HttpGet("getChatId")]
+    public async Task<ActionResult<long>> GetChatId(string userName)
+    {
+        if (_receivedUpdates.Count == 0)
+        {
+            return NotFound("No received updates available");
+        }
+
+        var chatId = await GetChatIdForUserAsync(userName);
+
+        if (!chatId.HasValue)
+        {
+            return NotFound($"No chat found for user: {userName}");
+        }
+
+        return Ok(chatId);
+    }
+
+    private Task<long?> GetChatIdForUserAsync(string userName)
+    {
+        var update = _receivedUpdates.FirstOrDefault(u => u?.Message?.Chat.Username == userName);
+
+        return Task.FromResult(update?.Message?.Chat.Id);
+    }
+
     [HttpPost("webhook")]
     public async Task<IActionResult> Webhook(
         [FromBody] Update update,
@@ -35,7 +61,8 @@ public class TelegramController : BaseApiController
         {
             return Forbid();
         }
-
+        
+        _receivedUpdates.Enqueue(update);
         return await ProcessUpdateAsync(bot, update, handleUpdateService, ct);
     }
 
