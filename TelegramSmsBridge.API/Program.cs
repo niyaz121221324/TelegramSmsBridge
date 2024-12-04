@@ -26,7 +26,7 @@ app.MapHub<TelegramHub>("/notificationHub");
 
 app.UseCors("CorsPolicy");
 
-//app.UseHttpsRedirection();
+app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
