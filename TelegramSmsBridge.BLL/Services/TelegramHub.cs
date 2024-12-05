@@ -7,14 +7,7 @@ namespace TelegramSmsBridge.BLL.Services;
 
 public class TelegramHub : Hub
 {
-    private readonly ITelegramBotClient _botClient;
-    
     private static readonly ConcurrentDictionary<long, string> Users = new ConcurrentDictionary<long, string>();
-
-    public TelegramHub(ITelegramBotClient botClient)
-    {
-        _botClient = botClient;
-    }
 
     // Регистрирует пользователя по его userName пользователя в telegram, сохраняя его connection ID.
     public async Task RegisterUserAsync(string userName)
@@ -68,13 +61,12 @@ public class TelegramHub : Hub
     }
 
     // Получает ChatId для данного имени пользователя, получая последние обновления.
-    private async Task<long> GetChatIdAsync(string userName)
+    private Task<long> GetChatIdAsync(string userName)
     {
-        var updates = await _botClient.GetUpdates(limit: 5);
-
         // Попробуйте найти ChatId для указанного имени пользователя в последних обновлениях.
-        var update = updates.FirstOrDefault(u => u?.Message?.From?.FirstName?.Equals(userName, StringComparison.OrdinalIgnoreCase) == true);
+        var update = UserUpdateCollection.Instance.FirstOrDefaultUpdate(
+            u => u?.Message?.From?.FirstName?.Equals(userName, StringComparison.OrdinalIgnoreCase) == true);
 
-        return update?.Message?.Chat?.Id ?? 0;
+        return Task.FromResult(update?.Message?.Chat?.Id ?? 0);
     }
 }

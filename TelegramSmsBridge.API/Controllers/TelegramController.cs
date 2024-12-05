@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Telegram.Bot;
@@ -12,7 +11,6 @@ public class TelegramController : BaseApiController
 {
     private readonly TelegramSettings _telegramSettings;
     private readonly ILogger<UpdateHandler> _logger;
-    private readonly HashSet<Update> _receivedUpdates = new HashSet<Update>(new UpdateComparerByUserName());
 
     public TelegramController(IOptions<TelegramSettings> telegramSettings, ILogger<UpdateHandler> logger)
     {
@@ -41,11 +39,11 @@ public class TelegramController : BaseApiController
 
     private Task<long?> GetChatIdForUserAsync(string userName)
     {
-        var update = _receivedUpdates.FirstOrDefault(update => update?.Message?.Chat?.Username == userName);
+        var update = UserUpdateCollection.Instance.FirstOrDefaultUpdate(update => update?.Message?.Chat?.Username == userName);
 
         if (update != null)
         {
-            _receivedUpdates.Remove(update);
+            UserUpdateCollection.Instance.RemoveUpdate(update);
         }
             
         return Task.FromResult(update?.Message?.Chat.Id);
@@ -63,7 +61,7 @@ public class TelegramController : BaseApiController
             return Forbid();
         }
 
-        _receivedUpdates.Add(update);
+        UserUpdateCollection.Instance.AddUpdate(update);
         return await ProcessUpdateAsync(bot, update, handleUpdateService, ct);
     }
 
