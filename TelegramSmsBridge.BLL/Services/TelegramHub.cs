@@ -64,8 +64,8 @@ public class TelegramHub : Hub
     private Task<long> GetChatIdAsync(string userName)
     {
         // Попробуйте найти ChatId для указанного имени пользователя в последних обновлениях.
-        var update = UserUpdateCollection.Instance.FirstOrDefaultUpdate(
-            u => u?.Message?.From?.FirstName?.Equals(userName, StringComparison.OrdinalIgnoreCase) == true);
+        var update = UserUpdateCollection.Instance
+            .FirstOrDefaultUpdate(u => u?.Message?.From?.FirstName?.Equals(userName, StringComparison.OrdinalIgnoreCase) == true);
 
         return Task.FromResult(update?.Message?.Chat?.Id ?? 0);
     }

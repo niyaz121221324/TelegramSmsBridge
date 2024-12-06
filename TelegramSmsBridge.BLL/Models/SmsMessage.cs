@@ -40,7 +40,15 @@ public class SmsMessage
     /// <returns>Номер телефона или пустая строка, если номер не указан.</returns>
     private static string ExtractPhoneNumber(Message message)
     {
-        return message.Contact?.PhoneNumber ?? string.Empty;
+        if (message.ReplyToMessage != null && !string.IsNullOrEmpty(message.ReplyToMessage.Text))
+        {
+            string replyText = message.ReplyToMessage.Text;
+
+            string[] parts = replyText.Split(':');
+            return parts.Length > 0 ? parts[0] : string.Empty;
+        }
+
+        return string.Empty;
     }
 
     public override string ToString()

@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using Telegram.Bot.Types;
 using TelegramSmsBridge.BLL.Models;
 
@@ -19,7 +20,7 @@ public sealed class UserUpdateCollection
     /// Получает или задает словарь, который хранит последние SMS-сообщения для каждого чата.
     /// Ключ представляет идентификатор чата, а значение — соответствующее <see cref="SmsMessage"/>.
     /// </summary>
-    public Dictionary<long, SmsMessage> RecentMessagesByChat { get; set; } = new Dictionary<long, SmsMessage>();
+    public ConcurrentDictionary<long, SmsMessage> RecentMessagesByChat { get; set; } = new ConcurrentDictionary<long, SmsMessage>();
 
     public bool AddUpdate(Update update) => _reciviedUpdates.Add(update);
 

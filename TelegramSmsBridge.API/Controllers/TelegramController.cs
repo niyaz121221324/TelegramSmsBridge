@@ -56,7 +56,7 @@ public class TelegramController : BaseApiController
     {
         try
         {
-            UserUpdateCollection.Instance.RecentMessagesByChat.Add(chatId, message);
+            UserUpdateCollection.Instance.RecentMessagesByChat[chatId] = message;
 
             await _botClient.SendMessage(chatId, message.ToString());
             return Ok("Message was sent");

@@ -41,7 +41,7 @@ class TextResponseNotificationStrategy : INotificationStrategy
 
     private SmsMessage? GetSmsMessageToSend(Message message)
     {
-        if (message.ReplyToMessage != null && message.ReplyToMessage.Contact != null)
+        if (message.ReplyToMessage != null)
         {
             return SmsMessage.FromMessage(message.ReplyToMessage);
         }
