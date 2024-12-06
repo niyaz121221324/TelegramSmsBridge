@@ -9,13 +9,11 @@ class TextResponseNotificationStrategy : INotificationStrategy
 {
     private readonly ITelegramBotClient _botClient;
     private readonly TelegramHub _telegramHub;
-    private readonly Message? _messageToRespondTo;
 
-    public TextResponseNotificationStrategy(ITelegramBotClient botClient, TelegramHub telegramHub, Message? messageResponseTo)
+    public TextResponseNotificationStrategy(ITelegramBotClient botClient, TelegramHub telegramHub)
     {
         _botClient = botClient;
         _telegramHub = telegramHub;
-        _messageToRespondTo = messageResponseTo;
     }
 
     public async Task SendNotificationAsync(Message message)
@@ -47,10 +45,10 @@ class TextResponseNotificationStrategy : INotificationStrategy
         {
             return SmsMessage.FromMessage(message.ReplyToMessage);
         }
-
-        if (_messageToRespondTo != null && string.IsNullOrEmpty(_messageToRespondTo.Text) && _messageToRespondTo.Contact != null)
+        
+        if (UserUpdateCollection.Instance.RecentMessagesByChat.TryGetValue(message.Chat.Id, out var recentMessage))
         {
-            return SmsMessage.FromMessage(_messageToRespondTo);
+            return recentMessage;
         }
 
         return null;

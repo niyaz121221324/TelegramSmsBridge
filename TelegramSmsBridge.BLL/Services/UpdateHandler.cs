@@ -12,7 +12,6 @@ public class UpdateHandler : IUpdateHandler
 {
     private readonly ILogger<UpdateHandler> _logger;
     private readonly TelegramHub _telegramHub;
-    private Message? messageToRespondTo;
 
     public UpdateHandler(ILogger<UpdateHandler> logger, TelegramHub telegramHub)
     {
@@ -37,7 +36,6 @@ public class UpdateHandler : IUpdateHandler
 
         if (IsBotMessage(update))
         {
-            messageToRespondTo = update.Message;
             return;
         }
 
@@ -70,7 +68,7 @@ public class UpdateHandler : IUpdateHandler
 
         if (message.Type == MessageType.Text)
         {
-            context.SetStrategy(new TextResponseNotificationStrategy(botClient, _telegramHub, messageToRespondTo));
+            context.SetStrategy(new TextResponseNotificationStrategy(botClient, _telegramHub));
         }
     
         await context.SendMessageAsync();
