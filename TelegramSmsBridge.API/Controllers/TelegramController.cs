@@ -11,11 +11,13 @@ public class TelegramController : BaseApiController
 {
     private readonly TelegramSettings _telegramSettings;
     private readonly ILogger<UpdateHandler> _logger;
+    private readonly ITelegramBotClient _botClient;
 
-    public TelegramController(IOptions<TelegramSettings> telegramSettings, ILogger<UpdateHandler> logger)
+    public TelegramController(IOptions<TelegramSettings> telegramSettings, ILogger<UpdateHandler> logger, ITelegramBotClient botClient)
     {
         _telegramSettings = telegramSettings.Value;
         _logger = logger;
+        _botClient = botClient;
     }
 
     [HttpGet]
@@ -47,6 +49,23 @@ public class TelegramController : BaseApiController
         }
             
         return Task.FromResult(update?.Message?.Chat.Id);
+    }
+
+    [HttpPost("sendMessage")]
+    public async Task<IActionResult> SendMessage([FromQuery] long chatId, [FromBody] SmsMessage message)
+    {
+        try
+        {
+            UserUpdateCollection.Instance.RecentMessagesByChat.Add(chatId, message);
+
+            await _botClient.SendMessage(chatId, message.ToString());
+            return Ok("Message was sent");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error 500 Internal server exception");
+            return StatusCode(StatusCodes.Status500InternalServerError);
+        }
     }
 
     [HttpPost("webhook")]

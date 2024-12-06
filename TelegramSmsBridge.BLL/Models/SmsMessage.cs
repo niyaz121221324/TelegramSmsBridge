@@ -42,4 +42,9 @@ public class SmsMessage
     {
         return message.Contact?.PhoneNumber ?? string.Empty;
     }
+
+    public override string ToString()
+    {
+        return $"{PhoneNumber}:{MessageContent}";
+    }
 }
