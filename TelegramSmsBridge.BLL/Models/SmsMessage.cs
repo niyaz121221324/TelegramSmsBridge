@@ -45,7 +45,7 @@ public class SmsMessage
             string replyText = message.ReplyToMessage.Text;
 
             string[] parts = replyText.Split(':');
-            return parts.Length > 0 ? parts[0] : string.Empty;
+            return parts.Length > 0 ? parts[0].Trim() : string.Empty;
         }
 
         return string.Empty;
