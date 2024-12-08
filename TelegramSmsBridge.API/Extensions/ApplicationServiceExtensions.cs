@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.SignalR;
 using Telegram.Bot;
 using TelegramSmsBridge.BLL.Models;
 using TelegramSmsBridge.BLL.Services;
@@ -22,6 +23,7 @@ public static class ApplicationServiceExtensions
 
         services.AddSignalR(); // Добавляем SignalR в DI контейнер
         services.AddSingleton<TelegramHub>();
+        services.AddSingleton<IUserIdProvider, ConnectionIdUserProvider>();
 
         return services;
     }
