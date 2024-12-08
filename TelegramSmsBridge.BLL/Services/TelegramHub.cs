@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using Microsoft.AspNetCore.SignalR;
-using Telegram.Bot;
 using TelegramSmsBridge.BLL.Models;
 
 namespace TelegramSmsBridge.BLL.Services;
