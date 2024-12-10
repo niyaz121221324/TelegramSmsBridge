@@ -17,9 +17,9 @@ public static class ApplicationServiceExtensions
     {
         // Регистрируем TelegramBotClient с использованием конфигурации
         ConfigureTelegramBotClient(services, configuration);
-
         services.AddSingleton<UpdateHandler>();
         services.ConfigureTelegramBotMvc();
+        services.Configure<TelegramSettings>(configuration.GetSection(nameof(TelegramSettings)));
 
         // Настройка Cors для доступа к api
         ConfigureCorsPolicy(services);
@@ -94,19 +94,16 @@ public static class ApplicationServiceExtensions
 
     private static void ConfigureTelegramBotClient(IServiceCollection services, IConfiguration configuration)
     {
-        var botConfigSection = configuration.GetSection(nameof(TelegramSettings));
-        var botToken = botConfigSection.Get<TelegramSettings>()!.BotToken;
-
-        services.Configure<TelegramSettings>(botConfigSection);
+        var botToken = configuration.GetSection(nameof(TelegramSettings)).Get<TelegramSettings>();
 
         services.AddHttpClient("tgwebhook").RemoveAllLoggers().AddTypedClient<ITelegramBotClient>(httpClient =>
         {
-            if (string.IsNullOrEmpty(botToken))
+            if (string.IsNullOrEmpty(botToken!.BotToken))
             {
                 throw new InvalidOperationException("Bot token is not configured.");
             }
 
-            return new TelegramBotClient(botToken, httpClient);
+            return new TelegramBotClient(botToken!.BotToken, httpClient);
         });
     }
 }
