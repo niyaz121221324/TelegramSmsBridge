@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Telegram.Bot;
 using TelegramSmsBridge.BLL.Models;
 using TelegramSmsBridge.BLL.Services;
+using TelegramSmsBridge.BLL.Services.Authentification;
 
 namespace TelegramSmsBridge.API.Extensions;
 
@@ -26,11 +27,12 @@ public static class ApplicationServiceExtensions
 
         services.AddSignalR(); // Добавляем SignalR в DI контейнер
         services.AddSingleton<TelegramHub>();
-        services.AddSingleton<IUserIdProvider, ConnectionIdUserProvider>();
+        services.AddSingleton<IUserIdProvider, NameIdentifierUserIdProvider>();
 
         // Настраиваем аутентификацию по JWT токенам
         ConfigureJwtAuthentication(services, configuration);
         services.Configure<JWTSettings>(configuration.GetSection(nameof(JWTSettings)));
+        services.AddSingleton<IJWTProvider, JWTProvider>();
 
         return services;
     }

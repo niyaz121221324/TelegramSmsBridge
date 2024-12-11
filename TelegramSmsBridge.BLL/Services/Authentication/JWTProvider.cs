@@ -1,6 +1,8 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using TelegramSmsBridge.BLL.Models;
 
@@ -10,9 +12,9 @@ public class JWTProvider : IJWTProvider
 {
     private readonly JWTSettings _jwtSettings;
 
-    public JWTProvider(JWTSettings jWTSettings)
+    public JWTProvider(IOptions<JWTSettings> jWTSettings)
     {
-        _jwtSettings = jWTSettings;
+        _jwtSettings = jWTSettings.Value;
     }
 
     public string GenerateAccesstoken(string telegramUserName)
@@ -36,5 +38,16 @@ public class JWTProvider : IJWTProvider
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public string GenerateRefreshToken()
+    {
+        var randomNumber = new byte[32];
+        
+        using (var rng = RandomNumberGenerator.Create())
+        {
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
+        }
     }
 }
