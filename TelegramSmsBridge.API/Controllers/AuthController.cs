@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using TelegramSmsBridge.BLL.Models;
+using TelegramSmsBridge.BLL.Services;
 using TelegramSmsBridge.BLL.Services.Authentification;
 
 namespace TelegramSmsBridge.API.Controllers;
@@ -19,15 +21,42 @@ public class AuthController : BaseApiController
     {
         try
         {
-            var token = await GenerateJwtToken(telegramUserName);
+            var user = UserCollection.Instance.FirstOrDefaultUser(u => u.TelegramUserName == telegramUserName);
 
-            return Ok(token);
+            string refreshToken = string.Empty;
+
+            // Если пользователь не зарегестрирован 
+            if (user == null)
+            {
+                refreshToken = _jwtProvider.GenerateRefreshToken();
+                UserCollection.Instance.AddUser(new AppUser(telegramUserName, refreshToken));
+            }
+
+            var accesToken = await GenerateJwtToken(telegramUserName);
+            refreshToken = user?.RefreshToken ?? refreshToken;
+
+            return Ok(new { accesToken, refreshToken });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error 500 Internal server exception while auth");
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
+    }
+    
+    [HttpPost("refreshToken")]
+    public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
+    {
+        var user = UserCollection.Instance.FirstOrDefaultUser(u => u.RefreshToken == refreshToken);
+
+        if (user == null)
+        {
+            return Unauthorized();
+        }
+
+        var accesToken = await GenerateJwtToken(user.TelegramUserName);
+
+        return Ok(new { accesToken, refreshToken });
     } 
 
     private Task<string> GenerateJwtToken(string telegramUserName)
