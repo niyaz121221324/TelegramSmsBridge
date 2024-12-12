@@ -26,12 +26,15 @@ class TextResponseNotificationStrategy : INotificationStrategy
 
         var smsMessage = GetSmsMessageToSend(message);
 
-        if (smsMessage != null)
+        if (smsMessage != null && !string.IsNullOrEmpty(message?.From?.Username))
         {
-            await _telegramHub.SendMessageAsync(message.Chat.Id, smsMessage);
+            await _telegramHub.SendMessageAsync(message.From.Username, smsMessage);
         }
-
-        await SendCommandMessageAsync(message);
+        
+        if(message != null)
+        {
+            await SendCommandMessageAsync(message);
+        }
     }
 
     private bool IsCommandMessage(Message message)

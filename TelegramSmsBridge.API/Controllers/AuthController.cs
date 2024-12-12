@@ -55,8 +55,12 @@ public class AuthController : BaseApiController
         }
 
         var accesToken = await GenerateJwtToken(user.TelegramUserName);
+        var newRefreshToken = _jwtProvider.GenerateRefreshToken();
+        
+        // Обновляем refresh токен у конкретного пользователя
+        user.RefreshToken = newRefreshToken;
 
-        return Ok(new { accesToken, refreshToken });
+        return Ok(new { accesToken, newRefreshToken });
     } 
 
     private Task<string> GenerateJwtToken(string telegramUserName)
