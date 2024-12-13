@@ -42,6 +42,18 @@ class TextResponseNotificationStrategy : INotificationStrategy
         return string.IsNullOrEmpty(message.Text) && (message.Text == "/start" || message.Text == "/help");
     } 
 
+    private async Task SendCommandMessageAsync(Message message)
+    {
+        var responseText = message.Text?.Split(' ')[0] switch
+        {
+            "/start" => "Welcome to the bot!",
+            "/help" => "How can I help you?",
+            _ => "Unknown command."
+        };
+
+        await _botClient.SendMessage(message.Chat, responseText, replyMarkup: new ReplyKeyboardRemove());
+    }
+
     private SmsMessage? GetSmsMessageToSend(Message message)
     {
         if (message.ReplyToMessage != null)
@@ -55,17 +67,5 @@ class TextResponseNotificationStrategy : INotificationStrategy
         }
 
         return null;
-    }
-
-    private async Task SendCommandMessageAsync(Message message)
-    {
-        var responseText = message.Text?.Split(' ')[0] switch
-        {
-            "/start" => "Welcome to the bot!",
-            "/help" => "How can I help you?",
-            _ => "Unknown command."
-        };
-
-        await _botClient.SendMessage(message.Chat, responseText, replyMarkup: new ReplyKeyboardRemove());
     }
 }

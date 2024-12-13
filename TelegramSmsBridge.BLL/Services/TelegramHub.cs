@@ -7,7 +7,7 @@ namespace TelegramSmsBridge.BLL.Services;
 [Authorize]
 public class TelegramHub : Hub
 {
-    // Отправляет сообщение пользователю, используя его ChatId.
+    // Отправляет сообщение определённому зарегестрированному пользователю
     public async Task SendMessageAsync(string user, SmsMessage message)
     {
         if (UserCollection.Instance.FirstOrDefaultUser(u => u.TelegramUserName == user) == null)
