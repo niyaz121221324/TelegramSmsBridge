@@ -9,7 +9,7 @@ public class UserCollection
 
     private UserCollection()
     {
-        _users = new HashSet<AppUser>();
+        _users = new HashSet<AppUser>(new TelegramUserNameComparer());
     }
 
     public static UserCollection Instance => _instance.Value;
