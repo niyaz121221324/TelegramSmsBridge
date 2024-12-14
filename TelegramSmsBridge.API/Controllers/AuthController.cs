@@ -8,9 +8,9 @@ namespace TelegramSmsBridge.API.Controllers;
 public class AuthController : BaseApiController
 {
     private readonly IJWTProvider _jwtProvider;
-    private readonly ILogger _logger;
+    private readonly ILogger<AuthController> _logger;
 
-    public AuthController(IJWTProvider jwtProvider, ILogger logger)
+    public AuthController(IJWTProvider jwtProvider, ILogger<AuthController> logger)
     {
         _jwtProvider = jwtProvider;
         _logger = logger;
