@@ -35,7 +35,7 @@ public class AuthController : BaseApiController
             var accessToken = await GenerateJwtToken(telegramUserName);
             refreshToken = user?.RefreshToken ?? refreshToken;
 
-            return Ok(new { accessToken, refreshToken });
+            return Ok(new AuthResponse(accessToken, refreshToken));
         }
         catch (Exception ex)
         {
@@ -60,7 +60,7 @@ public class AuthController : BaseApiController
         // Обновляем refresh токен у конкретного пользователя
         user.RefreshToken = newRefreshToken;
 
-        return Ok(new { accessToken, newRefreshToken });
+        return Ok(new AuthResponse(accessToken, newRefreshToken));
     } 
 
     private Task<string> GenerateJwtToken(string telegramUserName)
