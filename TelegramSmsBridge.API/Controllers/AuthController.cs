@@ -65,6 +65,6 @@ public class AuthController : BaseApiController
 
     private Task<string> GenerateJwtToken(string telegramUserName)
     {
-        return Task.FromResult(_jwtProvider.GenerateAccesstoken(telegramUserName)); 
+        return Task.FromResult(_jwtProvider.GenerateAccessToken(telegramUserName)); 
     }
 }

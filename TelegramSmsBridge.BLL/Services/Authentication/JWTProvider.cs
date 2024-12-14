@@ -17,7 +17,7 @@ public class JWTProvider : IJWTProvider
         _jwtSettings = jWTSettings.Value;
     }
 
-    public string GenerateAccesstoken(string telegramUserName)
+    public string GenerateAccessToken(string telegramUserName)
     {
         var claims = new[]
         {
