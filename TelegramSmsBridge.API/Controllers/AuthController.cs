@@ -32,10 +32,10 @@ public class AuthController : BaseApiController
                 UserCollection.Instance.AddUser(new AppUser(telegramUserName, refreshToken));
             }
 
-            var accesToken = await GenerateJwtToken(telegramUserName);
+            var accessToken = await GenerateJwtToken(telegramUserName);
             refreshToken = user?.RefreshToken ?? refreshToken;
 
-            return Ok(new { accesToken, refreshToken });
+            return Ok(new { accessToken, refreshToken });
         }
         catch (Exception ex)
         {
@@ -54,13 +54,13 @@ public class AuthController : BaseApiController
             return Unauthorized();
         }
 
-        var accesToken = await GenerateJwtToken(user.TelegramUserName);
+        var accessToken = await GenerateJwtToken(user.TelegramUserName);
         var newRefreshToken = _jwtProvider.GenerateRefreshToken();
         
         // Обновляем refresh токен у конкретного пользователя
         user.RefreshToken = newRefreshToken;
 
-        return Ok(new { accesToken, newRefreshToken });
+        return Ok(new { accessToken, newRefreshToken });
     } 
 
     private Task<string> GenerateJwtToken(string telegramUserName)
