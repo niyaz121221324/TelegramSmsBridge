@@ -30,8 +30,8 @@ class TextResponseNotificationStrategy : INotificationStrategy
         {
             await _telegramHub.SendMessageAsync(message.From.Username, smsMessage);
         }
-        
-        if(message != null)
+
+        if (message != null)
         {
             await SendCommandMessageAsync(message);
         }
@@ -52,6 +52,11 @@ class TextResponseNotificationStrategy : INotificationStrategy
         };
 
         await _botClient.SendMessage(message.Chat, responseText, replyMarkup: new ReplyKeyboardRemove());
+    }
+
+    private bool IsRegistratedUser(string? user)
+    {
+        return UserCollection.Instance.FirstOrDefaultUser(u => u.TelegramUserName == user) != null;
     }
 
     private SmsMessage? GetSmsMessageToSend(Message message)
