@@ -25,7 +25,7 @@ public class AuthController : BaseApiController
 
             string refreshToken = string.Empty;
 
-            // Если пользователь не зарегестрирован 
+            // Если пользователь не зарегистрирован 
             if (user == null)
             {
                 refreshToken = _jwtProvider.GenerateRefreshToken();
