@@ -30,9 +30,9 @@ public static class ApplicationServiceExtensions
         services.AddSingleton<IUserIdProvider, NameIdentifierUserIdProvider>();
 
         // Настраиваем аутентификацию по JWT токенам
-        ConfigureJwtAuthentication(services, configuration);
         services.Configure<JWTSettings>(configuration.GetSection(nameof(JWTSettings)));
         services.AddSingleton<IJWTProvider, JWTProvider>();
+        ConfigureJwtAuthentication(services, configuration);
 
         return services;
     }
