@@ -26,8 +26,8 @@ public static class ApplicationServiceExtensions
         ConfigureCorsPolicy(services);
 
         services.AddSignalR(); // Добавляем SignalR в DI контейнер
-        services.AddSingleton<TelegramHub>();
         services.AddSingleton<IUserIdProvider, NameIdentifierUserIdProvider>();
+        services.AddSingleton<TelegramHub>();
 
         // Настраиваем аутентификацию по JWT токенам
         services.Configure<JWTSettings>(configuration.GetSection(nameof(JWTSettings)));
