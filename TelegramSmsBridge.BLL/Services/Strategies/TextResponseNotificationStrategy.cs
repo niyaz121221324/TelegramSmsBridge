@@ -25,10 +25,11 @@ class TextResponseNotificationStrategy : INotificationStrategy
         }
 
         var smsMessage = GetSmsMessageToSend(message);
-
+        
         if (smsMessage != null && !string.IsNullOrEmpty(message?.From?.Username))
         {
             await _telegramHub.SendMessageAsync(message.From.Username, smsMessage);
+            return;
         }
 
         if (message != null)
@@ -54,21 +55,16 @@ class TextResponseNotificationStrategy : INotificationStrategy
         await _botClient.SendMessage(message.Chat, responseText, replyMarkup: new ReplyKeyboardRemove());
     }
 
-    private bool IsRegistratedUser(string? user)
-    {
-        return UserCollection.Instance.FirstOrDefaultUser(u => u.TelegramUserName == user) != null;
-    }
-
     private SmsMessage? GetSmsMessageToSend(Message message)
     {
         if (message.ReplyToMessage != null)
         {
-            return SmsMessage.FromMessage(message.ReplyToMessage);
+            return SmsMessage.FromMessage(message);
         }
         
         if (UserUpdateCollection.Instance.RecentMessagesByChat.TryGetValue(message.Chat.Id, out var recentMessage))
         {
-            return recentMessage;
+            return new SmsMessage() { MessageContent = message?.Text ?? string.Empty, PhoneNumber = recentMessage.PhoneNumber };
         }
 
         return null;
