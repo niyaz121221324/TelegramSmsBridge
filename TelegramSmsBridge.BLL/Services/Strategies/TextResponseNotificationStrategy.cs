@@ -45,7 +45,7 @@ class TextResponseNotificationStrategy : INotificationStrategy
 
     private async Task SendCommandMessageAsync(Message message)
     {
-        var responseText = message.Text?.Split(' ')[0] switch
+        var responseText = message.Text?.Split(' ')[0].Trim() switch
         {
             "/start" => "Welcome to the bot!",
             "/help" => "How can I help you?",
