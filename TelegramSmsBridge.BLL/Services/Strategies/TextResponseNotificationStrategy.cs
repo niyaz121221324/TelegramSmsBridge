@@ -40,7 +40,7 @@ class TextResponseNotificationStrategy : INotificationStrategy
 
     private bool IsCommandMessage(Message message)
     {
-        return string.IsNullOrEmpty(message.Text) && (message.Text == "/start" || message.Text == "/help");
+        return !string.IsNullOrEmpty(message.Text) && (message.Text == "/start" || message.Text == "/help");
     } 
 
     private async Task SendCommandMessageAsync(Message message)
