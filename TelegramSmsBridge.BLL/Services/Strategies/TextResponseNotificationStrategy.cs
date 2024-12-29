@@ -29,10 +29,8 @@ class TextResponseNotificationStrategy : INotificationStrategy
         if (smsMessage != null && !string.IsNullOrEmpty(message?.From?.Username))
         {
             await _telegramHub.SendMessageAsync(message.From.Username, smsMessage);
-            return;
         }
-
-        if (message != null)
+        else if (message != null)
         {
             await SendCommandMessageAsync(message);
         }
