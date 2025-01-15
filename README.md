@@ -47,7 +47,7 @@
 1. **Клонируйте репозиторий проекта**  
    Выполните следующие команды в терминале:  
    ```bash
-   git clone https://github.com/ваш_имя_пользователя/TelegramSmsBridge.git
+   git clone https://github.com/niyaz121221324/TelegramSmsBridge.git
    cd TelegramSmsBridge
 2. **Запустите проект**
    ```bash
