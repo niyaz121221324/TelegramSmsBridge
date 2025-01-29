@@ -8,4 +8,4 @@ tunnels:
   nginx_proxy:
     addr: nginx:80
     proto: http
-    domain: glider-dear-hog.ngrok-free.app
+    domain: cheaply-cute-ape.ngrok-free.app
