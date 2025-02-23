@@ -22,21 +22,25 @@
 
 ## Системные требования
 
-Перед началом работы убедитесь, что у вас установлено следующее:
+# Перед началом работы убедитесь, что у вас установлено следующее:
 
-1. **Docker**  
-   Установите Docker на вашем устройстве.  
-   [Инструкция по установке Docker](https://docs.docker.com/get-docker/)
+## Docker  
+Установите **Docker** на ваше устройство, если он еще не установлен.  
+[Инструкция по установке Docker](https://docs.docker.com/get-docker/)
 
-2. **Docker Compose**  
-   Убедитесь, что **Docker Compose** установлен.  
-   [Инструкция по установке Docker Compose](https://docs.docker.com/compose/install/)
+## Docker Compose  
+Проверьте, что у вас установлен **Docker Compose**.  
+[Инструкция по установке Docker Compose](https://docs.docker.com/compose/install/)
 
-3. **Ngrok токен**  
-   Получите токен аутентификации на [официальном сайте Ngrok](https://ngrok.com/).  
-   Вставьте его в файл **ngrok.yml** перед запуском.
+## Ngrok токен  
+Для работы с Ngrok получите токен аутентификации:  
+1. Зарегистрируйтесь или войдите на [официальном сайте Ngrok](https://ngrok.com/).
+2. Скопируйте свой токен.
+3. Вставьте его в файл **ngrok.yml** перед запуском.
 
-Также установите приложение SmsMonitor для работы с отправкой СМС сообщений (https://github.com/niyaz121221324/SmsMonitor/)
+## SmsMonitor  
+Для работы с отправкой SMS установите приложение **SmsMonitor**:  
+[Скачать SmsMonitor](https://github.com/niyaz121221324/SmsMonitor/)
 
 ---
 
