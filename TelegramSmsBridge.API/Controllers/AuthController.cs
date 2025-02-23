@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using TelegramSmsBridge.BLL.Models;
 using TelegramSmsBridge.BLL.Services;
 using TelegramSmsBridge.BLL.Services.Authentification;
@@ -9,11 +10,13 @@ public class AuthController : BaseApiController
 {
     private readonly IJWTProvider _jwtProvider;
     private readonly ILogger<AuthController> _logger;
+    private readonly JWTSettings _jwtSettings;
 
-    public AuthController(IJWTProvider jwtProvider, ILogger<AuthController> logger)
+    public AuthController(IOptions<JWTSettings> jwtSettings, IJWTProvider jwtProvider, ILogger<AuthController> logger)
     {
         _jwtProvider = jwtProvider;
         _logger = logger;
+        _jwtSettings = jwtSettings.Value;
     }
 
     [HttpPost("auth")]
@@ -31,9 +34,11 @@ public class AuthController : BaseApiController
                 refreshToken = _jwtProvider.GenerateRefreshToken();
                 UserCollection.Instance.AddUser(new AppUser(telegramUserName, refreshToken));
             }
-
+            
             var accessToken = await GenerateJwtToken(telegramUserName);
-            refreshToken = user?.RefreshToken ?? refreshToken;
+            refreshToken = string.IsNullOrEmpty(user?.RefreshToken) || IsRefreshTokenExpired(user) 
+                ? _jwtProvider.GenerateRefreshToken()
+                : refreshToken;
 
             return Ok(new AuthResponse(accessToken, refreshToken));
         }
@@ -49,7 +54,7 @@ public class AuthController : BaseApiController
     {
         var user = UserCollection.Instance.FirstOrDefaultUser(u => u.RefreshToken == refreshToken);
 
-        if (user == null)
+        if (user == null || IsRefreshTokenExpired(user))
         {
             return Unauthorized();
         }
@@ -57,11 +62,23 @@ public class AuthController : BaseApiController
         var accessToken = await GenerateJwtToken(user.TelegramUserName);
         var newRefreshToken = _jwtProvider.GenerateRefreshToken();
         
-        // Обновляем refresh токен у конкретного пользователя
+        // Обновляем refresh токен у конкретного пользователя и обновляем дату
         user.RefreshToken = newRefreshToken;
+        user.RefreshTokenLastUpdated = DateOnly.FromDateTime(DateTime.UtcNow);
 
         return Ok(new AuthResponse(accessToken, newRefreshToken));
     } 
+
+    private bool IsRefreshTokenExpired(AppUser? user)
+    {
+        if (user == null)
+        {
+            return false;
+        }
+
+        var expirationDate = user.RefreshTokenLastUpdated.AddDays(_jwtSettings.ExpiryTime);
+        return expirationDate < DateOnly.FromDateTime(DateTime.UtcNow);
+    }
 
     private Task<string> GenerateJwtToken(string telegramUserName)
     {

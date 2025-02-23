@@ -11,10 +11,10 @@ services:
   nginx:
     image: nginx:latest
     restart: unless-stopped
-    ports:
-      - "80:80" 
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "80:80"
     depends_on:
       - telegramsmsbridge.api
     container_name: nginx
@@ -31,10 +31,10 @@ services:
       - "/etc/ngrok.yml"
     volumes:
       - ./ngrok.yml:/etc/ngrok.yml:ro
-    depends_on:
-      - nginx
     ports:
       - 4040:4040
+    depends_on:
+      - nginx
     container_name: ngrok
     networks:
       - app_network
