@@ -1,11 +1,14 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Telegram.Bot;
 using TelegramSmsBridge.BLL.Models;
 using TelegramSmsBridge.BLL.Services;
 using TelegramSmsBridge.BLL.Services.Authentification;
+using TelegramSmsBridge.DAL.Contexts;
+using TelegramSmsBridge.DAL.Repository;
 
 namespace TelegramSmsBridge.API.Extensions;
 
@@ -34,7 +37,23 @@ public static class ApplicationServiceExtensions
         services.AddSingleton<IJWTProvider, JWTProvider>();
         ConfigureJwtAuthentication(services, configuration);
 
+        // Настраиваем подключения к бд
+        ConfigureDbContext(services, configuration);
+        
+        // Добавляем сервис для кещирования in-memory cache
+        services.AddMemoryCache();
+
+        services.AddTransient<IUserRepository, UserRepository>();
+
         return services;
+    }
+
+    private static void ConfigureDbContext(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddDbContext<AppDbContext>(options => 
+        {
+            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+        });
     }
 
     private static void ConfigureJwtAuthentication(IServiceCollection services, IConfiguration configuration)

@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using TelegramSmsBridge.BLL.Models;
-using TelegramSmsBridge.BLL.Services;
 using TelegramSmsBridge.BLL.Services.Authentification;
+using TelegramSmsBridge.BLL.Services.Queries;
+using TelegramSmsBridge.DAL.Repository;
+using TelegramSmsBridge.DAL.Entities;
 
 namespace TelegramSmsBridge.API.Controllers;
 
@@ -11,12 +14,17 @@ public class AuthController : BaseApiController
     private readonly IJWTProvider _jwtProvider;
     private readonly ILogger<AuthController> _logger;
     private readonly JWTSettings _jwtSettings;
+    private readonly IUserRepository _userRepository;
+    private readonly IMemoryCache _memoryCache;
 
-    public AuthController(IOptions<JWTSettings> jwtSettings, IJWTProvider jwtProvider, ILogger<AuthController> logger)
+    public AuthController(IOptions<JWTSettings> jwtSettings, IJWTProvider jwtProvider, ILogger<AuthController> logger, 
+        IUserRepository userRepository, IMemoryCache memoryCache)
     {
         _jwtProvider = jwtProvider;
         _logger = logger;
         _jwtSettings = jwtSettings.Value;
+        _userRepository = userRepository;
+        _memoryCache = memoryCache;
     }
 
     [HttpPost("auth")]
@@ -24,7 +32,8 @@ public class AuthController : BaseApiController
     {
         try
         {
-            var user = UserCollection.Instance.FirstOrDefaultUser(u => u.TelegramUserName == telegramUserName);
+            var query = new GetUserByTelegramQuery(_memoryCache,_userRepository, telegramUserName);
+            var user = await query.GetData();
 
             string refreshToken = string.Empty;
 
@@ -32,9 +41,9 @@ public class AuthController : BaseApiController
             if (user == null)
             {
                 refreshToken = _jwtProvider.GenerateRefreshToken();
-                UserCollection.Instance.AddUser(new AppUser(telegramUserName, refreshToken));
+                await _userRepository.AddUserAsync(new User() { TelegramUserName = telegramUserName, RefreshToken = refreshToken });
             }
-            
+
             var accessToken = await GenerateJwtToken(telegramUserName);
             refreshToken = string.IsNullOrEmpty(user?.RefreshToken) || IsRefreshTokenExpired(user) 
                 ? _jwtProvider.GenerateRefreshToken()
@@ -52,9 +61,10 @@ public class AuthController : BaseApiController
     [HttpPost("refreshToken")]
     public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
     {
-        var user = UserCollection.Instance.FirstOrDefaultUser(u => u.RefreshToken == refreshToken);
+        var query = new GetUserByRefreshTokenQuery(_memoryCache, _userRepository, refreshToken);
+        var user = await query.GetData();
 
-        if (user == null || IsRefreshTokenExpired(user))
+        if (user == null || string.IsNullOrEmpty(user.TelegramUserName) || IsRefreshTokenExpired(user))
         {
             return Unauthorized();
         }
@@ -69,14 +79,14 @@ public class AuthController : BaseApiController
         return Ok(new AuthResponse(accessToken, newRefreshToken));
     } 
 
-    private bool IsRefreshTokenExpired(AppUser? user)
+    private bool IsRefreshTokenExpired(User? user)
     {
         if (user == null)
         {
             return false;
         }
 
-        var expirationDate = user.RefreshTokenLastUpdated.AddDays(_jwtSettings.ExpiryTime);
+        var expirationDate = user.RefreshTokenLastUpdated?.AddDays(_jwtSettings.ExpiryTime);
         return expirationDate < DateOnly.FromDateTime(DateTime.UtcNow);
     }
 
