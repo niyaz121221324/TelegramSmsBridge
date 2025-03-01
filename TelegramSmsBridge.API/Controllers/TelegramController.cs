@@ -42,12 +42,6 @@ public class TelegramController : BaseApiController
     private Task<long?> GetChatIdForUserAsync(string userName)
     {
         var update = UserUpdateCollection.Instance.FirstOrDefaultUpdate(update => update?.Message?.Chat?.Username == userName);
-
-        if (update != null)
-        {
-            UserUpdateCollection.Instance.RemoveUpdate(update);
-        }
-            
         return Task.FromResult(update?.Message?.Chat.Id);
     }
 
