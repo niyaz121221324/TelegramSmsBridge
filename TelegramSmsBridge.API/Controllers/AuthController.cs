@@ -32,7 +32,7 @@ public class AuthController : BaseApiController
     {
         try
         {
-            var query = new GetUserByTelegramQuery(_memoryCache,_userRepository, telegramUserName);
+            var query = new GetUserByTelegramQuery(_memoryCache, _userRepository, telegramUserName);
             var user = await query.GetData();
 
             string refreshToken = string.Empty;
