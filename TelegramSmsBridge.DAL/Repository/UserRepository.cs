@@ -20,7 +20,7 @@ public class UserRepository : IUserRepository
     public async Task<bool> AddUserAsync(User user)
     {
         var entry = await _dbSet.AddAsync(user);
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
         return entry.State == EntityState.Added;
     }
 
