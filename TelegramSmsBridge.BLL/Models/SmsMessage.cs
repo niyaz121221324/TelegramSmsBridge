@@ -7,30 +7,33 @@ public class SmsMessage
     /// <summary>
     /// Номер телефона, на который отправляется сообщение.
     /// </summary>
-    public string PhoneNumber { get; set; } = string.Empty; 
+    public string PhoneNumber { get; }  
 
     /// <summary>
     /// Текст самого сообщения.
     /// </summary>
-    public string MessageContent { get; set; } = string.Empty;
+    public string MessageContent { get; }
+
+    public SmsMessage(string phoneNumber, string messageContent)
+    {
+        PhoneNumber = phoneNumber;
+        MessageContent = messageContent;
+    }
 
     /// <summary>
-    /// Создает объект SmsMessage на основе сообщения.
+    /// Преобразует объект сообщения в объект SmsMessage.
     /// </summary>
-    /// <param name="message">Объект сообщения.</param>
-    /// <returns>Новый объект SmsMessage.</returns>
-    public static SmsMessage FromMessage(Message? message)
+    /// <param name="message">Объект сообщения, на основе которого создается SmsMessage.</param>
+    /// <returns>Экземпляр SmsMessage, созданный на основе переданного сообщения.</returns>
+    public SmsMessage(Message? message)
     {
         if (message == null)
         {
             throw new ArgumentNullException(nameof(message));
         } 
 
-        return new SmsMessage
-        {
-            PhoneNumber = ExtractPhoneNumber(message),
-            MessageContent = message.Text ?? string.Empty
-        };
+        PhoneNumber = ExtractPhoneNumber(message);
+        MessageContent = message.Text ?? string.Empty;
     }
 
     /// <summary>
@@ -38,7 +41,7 @@ public class SmsMessage
     /// </summary>
     /// <param name="message">Объект сообщения.</param>
     /// <returns>Номер телефона или пустая строка, если номер не указан.</returns>
-    private static string ExtractPhoneNumber(Message message)
+    private string ExtractPhoneNumber(Message message)
     {
         if (message.ReplyToMessage != null && !string.IsNullOrEmpty(message.ReplyToMessage.Text))
         {

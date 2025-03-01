@@ -57,12 +57,12 @@ class TextResponseNotificationStrategy : INotificationStrategy
     {
         if (message.ReplyToMessage != null)
         {
-            return SmsMessage.FromMessage(message);
+            return new SmsMessage(message);
         }
         
         if (UserUpdateCollection.Instance.RecentMessagesByChat.TryGetValue(message.Chat.Id, out var recentMessage))
         {
-            return new SmsMessage() { MessageContent = message?.Text ?? string.Empty, PhoneNumber = recentMessage.PhoneNumber };
+            return new SmsMessage(message?.Text ?? string.Empty, recentMessage.PhoneNumber);
         }
 
         return null;
