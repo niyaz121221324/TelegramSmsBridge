@@ -1,7 +1,7 @@
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
-using TelegramSmsBridge.BLL.Models;
+using TelegramSmsBridge.DAL.Entities;
 
 namespace TelegramSmsBridge.BLL.Services.Strategies;
 
@@ -62,7 +62,7 @@ class TextResponseNotificationStrategy : INotificationStrategy
         
         if (UserUpdateCollection.Instance.RecentMessagesByChat.TryGetValue(message.Chat.Id, out var recentMessage))
         {
-            return new SmsMessage(message?.Text ?? string.Empty, recentMessage.PhoneNumber);
+            return new SmsMessage(recentMessage.ChatId, message?.Text ?? string.Empty, recentMessage.PhoneNumber);
         }
 
         return null;

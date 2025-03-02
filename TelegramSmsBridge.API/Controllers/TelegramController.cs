@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using TelegramSmsBridge.BLL.Models;
+using TelegramSmsBridge.DAL.Entities;
 using TelegramSmsBridge.BLL.Services;
 
 namespace TelegramSmsBridge.API.Controllers;

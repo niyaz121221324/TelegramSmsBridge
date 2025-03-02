@@ -1,6 +1,6 @@
 using System.Collections.Concurrent;
 using Telegram.Bot.Types;
-using TelegramSmsBridge.BLL.Models;
+using TelegramSmsBridge.DAL.Entities;
 
 namespace TelegramSmsBridge.BLL.Services;
 

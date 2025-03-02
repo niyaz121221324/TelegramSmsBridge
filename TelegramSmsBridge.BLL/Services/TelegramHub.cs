@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using TelegramSmsBridge.BLL.Models;
+using TelegramSmsBridge.DAL.Entities;
 
 namespace TelegramSmsBridge.BLL.Services;
 

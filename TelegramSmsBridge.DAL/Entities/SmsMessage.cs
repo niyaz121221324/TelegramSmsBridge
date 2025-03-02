@@ -1,21 +1,27 @@
 using Telegram.Bot.Types;
 
-namespace TelegramSmsBridge.BLL.Models;
+namespace TelegramSmsBridge.DAL.Entities;
 
 public class SmsMessage
 {
     /// <summary>
+    /// Идентификатор чата Telegram
+    /// </summary>
+    public long ChatId { get; set; }
+
+    /// <summary>
     /// Номер телефона, на который отправляется сообщение.
     /// </summary>
-    public string PhoneNumber { get; }  
+    public string PhoneNumber { get; set; }  
 
     /// <summary>
     /// Текст самого сообщения.
     /// </summary>
-    public string MessageContent { get; }
+    public string MessageContent { get; set; }
 
-    public SmsMessage(string phoneNumber, string messageContent)
+    public SmsMessage(long chatId, string phoneNumber, string messageContent)
     {
+        ChatId = chatId;
         PhoneNumber = phoneNumber;
         MessageContent = messageContent;
     }
@@ -31,7 +37,8 @@ public class SmsMessage
         {
             throw new ArgumentNullException(nameof(message));
         } 
-
+        
+        ChatId = message.Chat.Id;
         PhoneNumber = ExtractPhoneNumber(message);
         MessageContent = message.Text ?? string.Empty;
     }
