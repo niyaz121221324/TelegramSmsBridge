@@ -14,13 +14,28 @@ services:
     networks:
       - app_network
 
+  mongodb:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+    volumes:
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    ports:
+      - "27018:27017"
+    depends_on:
+      - postgres
+    container_name: mongo_db
+    networks:
+      - app_network
+
   telegramsmsbridge.api:
     image: ${DOCKER_REGISTRY-}telegramsmsbridgeapi
     build:
       context: .
       dockerfile: TelegramSmsBridge.API/Dockerfile
     depends_on:
-      - postgres
+      - mongodb
     container_name: telegramsmsbridge.api
     networks:
       - app_network

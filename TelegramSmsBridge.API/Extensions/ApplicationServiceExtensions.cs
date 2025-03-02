@@ -52,7 +52,7 @@ public static class ApplicationServiceExtensions
     {
         services.AddDbContext<AppDbContext>(options => 
         {
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"));
+            options.UseNpgsql(configuration.GetConnectionString("PostgesqlDbConnection"));
         });
     }
 
