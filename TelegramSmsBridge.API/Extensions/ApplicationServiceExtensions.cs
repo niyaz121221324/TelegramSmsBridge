@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using MongoDB.Driver;
 using Telegram.Bot;
 using TelegramSmsBridge.BLL.Models;
 using TelegramSmsBridge.BLL.Services;
@@ -37,22 +38,39 @@ public static class ApplicationServiceExtensions
         services.AddSingleton<IJWTProvider, JWTProvider>();
         ConfigureJwtAuthentication(services, configuration);
 
-        // Настраиваем подключения к бд
-        ConfigureDbContext(services, configuration);
+        // Настраиваем подключение к бд пользователей
+        ConfigureUsersDb(services, configuration);
         
         // Добавляем сервис для кещирования in-memory cache
         services.AddMemoryCache();
 
-        services.AddTransient<IUserRepository, UserRepository>();
+        // Настраиваем подключение к NoSql бд MongoDb
+        ConfigureMongoDb(services, configuration);
 
         return services;
     }
 
-    private static void ConfigureDbContext(this IServiceCollection services, IConfiguration configuration)
+    private static void ConfigureUsersDb(IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<AppDbContext>(options => 
         {
             options.UseNpgsql(configuration.GetConnectionString("PostgesqlDbConnection"));
+        });
+
+        services.AddTransient<IUserRepository, UserRepository>();
+    }
+
+    private static void ConfigureMongoDb(IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddSingleton<IMongoClient>(options =>
+        {
+            return new MongoClient(configuration.GetConnectionString("MongoDbConnection"));
+        });
+
+        services.AddScoped(service =>
+        {
+            var client = service.GetRequiredService<IMongoClient>();
+            return client.GetDatabase(configuration.GetSection("MongoDb:DatabaseName").Value);
         });
     }
 
@@ -100,7 +118,7 @@ public static class ApplicationServiceExtensions
         return Task.CompletedTask;
     }
 
-    private static void ConfigureCorsPolicy(this IServiceCollection services)
+    private static void ConfigureCorsPolicy(IServiceCollection services)
     {
         services.AddCors(opt =>
         {

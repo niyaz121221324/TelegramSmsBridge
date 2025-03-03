@@ -24,7 +24,7 @@ public class SmsMessage
         ChatId = chatId;
         PhoneNumber = phoneNumber;
         MessageContent = messageContent;
-    }
+    } 
 
     /// <summary>
     /// Преобразует объект сообщения в объект SmsMessage.
