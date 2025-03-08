@@ -17,17 +17,17 @@ public class GetUserByRefreshTokenQuery : BaseQuery<User>
         _refreshToken = refreshToken;
     }
 
-    public override async Task<User?> GetFromCache()
+    protected override async Task<User?> GetFromCache()
     {
         return await Task.FromResult((User?)_memoryCache.Get(_refreshToken));
     }
 
-    public override async Task<User?> GetFromDb()
+    protected override async Task<User?> GetFromDb()
     {
         return await _userRepository.FirstOrDefaultAsync(user => user.RefreshToken == _refreshToken);
     }
 
-    public override async Task WriteToCache(User data)
+    protected override async Task WriteToCache(User data)
     {
         var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
         await Task.FromResult(_memoryCache.Set(_refreshToken, data, cacheEntryOptions));

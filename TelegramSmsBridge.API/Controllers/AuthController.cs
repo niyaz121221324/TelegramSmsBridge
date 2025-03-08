@@ -17,8 +17,12 @@ public class AuthController : BaseApiController
     private readonly IUserRepository _userRepository;
     private readonly IMemoryCache _memoryCache;
 
-    public AuthController(IOptions<JWTSettings> jwtSettings, IJWTProvider jwtProvider, ILogger<AuthController> logger, 
-        IUserRepository userRepository, IMemoryCache memoryCache)
+    public AuthController(
+        IOptions<JWTSettings> jwtSettings, 
+        IJWTProvider jwtProvider, 
+        ILogger<AuthController> logger, 
+        IUserRepository userRepository, 
+        IMemoryCache memoryCache)
     {
         _jwtProvider = jwtProvider;
         _logger = logger;

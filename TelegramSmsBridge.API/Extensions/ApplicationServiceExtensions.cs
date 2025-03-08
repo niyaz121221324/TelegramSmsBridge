@@ -5,10 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
 using Telegram.Bot;
+using Telegram.Bot.Types;
 using TelegramSmsBridge.BLL.Models;
 using TelegramSmsBridge.BLL.Services;
 using TelegramSmsBridge.BLL.Services.Authentification;
 using TelegramSmsBridge.DAL.Contexts;
+using TelegramSmsBridge.DAL.Entities;
 using TelegramSmsBridge.DAL.Repository;
 
 namespace TelegramSmsBridge.API.Extensions;
@@ -62,16 +64,22 @@ public static class ApplicationServiceExtensions
 
     private static void ConfigureMongoDb(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddSingleton<IMongoClient>(options =>
+        var mongoClient = new MongoClient(configuration.GetConnectionString("MongoDbConnection"));
+        services.AddSingleton<IMongoClient>(mongoClient);
+
+        services.AddSingleton(provider =>
         {
-            return new MongoClient(configuration.GetConnectionString("MongoDbConnection"));
+            var client = provider.GetRequiredService<IMongoClient>();
+            var databaseName = configuration["MongoDb:DatabaseName"];
+            if (string.IsNullOrEmpty(databaseName))
+            {
+                throw new InvalidOperationException("MongoDb:DatabaseName is not configured");
+            }
+            return client.GetDatabase(databaseName);
         });
 
-        services.AddScoped(service =>
-        {
-            var client = service.GetRequiredService<IMongoClient>();
-            return client.GetDatabase(configuration.GetSection("MongoDb:DatabaseName").Value);
-        });
+        services.AddTransient<IMongoDbRepository<Update>, UpdateRepository>();
+        services.AddTransient<IMongoDbRepository<SmsMessage>, SmsMessageRepository>();
     }
 
     private static void ConfigureJwtAuthentication(IServiceCollection services, IConfiguration configuration)

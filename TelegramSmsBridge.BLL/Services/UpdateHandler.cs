@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -5,21 +6,35 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using TelegramSmsBridge.BLL.Services.Strategies;
+using TelegramSmsBridge.DAL.Entities;
+using TelegramSmsBridge.DAL.Repository;
 
 namespace TelegramSmsBridge.BLL.Services;
 
 public class UpdateHandler : IUpdateHandler
 {
+    private readonly IMemoryCache _memoryCache;
+    private readonly IMongoDbRepository<SmsMessage> _smsMessageRepository;
     private readonly ILogger<UpdateHandler> _logger;
     private readonly TelegramHub _telegramHub;
 
-    public UpdateHandler(ILogger<UpdateHandler> logger, TelegramHub telegramHub)
+    public UpdateHandler(
+        IMemoryCache memoryCache, 
+        IMongoDbRepository<SmsMessage> smsMessageRepository, 
+        ILogger<UpdateHandler> logger, 
+        TelegramHub telegramHub)
     {
+        _memoryCache = memoryCache;
+        _smsMessageRepository = smsMessageRepository;
         _logger = logger;
         _telegramHub = telegramHub;
     }
 
-    public async Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, HandleErrorSource source, CancellationToken cancellationToken)
+    public async Task HandleErrorAsync(
+        ITelegramBotClient botClient, 
+        Exception exception, 
+        HandleErrorSource source, 
+        CancellationToken cancellationToken)
     {
         _logger.LogInformation("HandleError: {Exception}", exception);
 
@@ -68,7 +83,7 @@ public class UpdateHandler : IUpdateHandler
 
         if (message.Type == MessageType.Text)
         {
-            context.SetStrategy(new TextResponseNotificationStrategy(botClient, _telegramHub));
+            context.SetStrategy(new TextResponseNotificationStrategy(_memoryCache, _smsMessageRepository, botClient, _telegramHub));
         }
     
         await context.SendMessageAsync();

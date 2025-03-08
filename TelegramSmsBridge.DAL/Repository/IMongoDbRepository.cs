@@ -11,4 +11,6 @@ public interface IMongoDbRepository<T> where T : class
     Task UpdateAsync(FilterDefinition<T> filter, T entity);
 
     Task DeleteAsync(FilterDefinition<T> filter);
+
+    Task<bool> AnyAsync(FilterDefinition<T> filter);
 }

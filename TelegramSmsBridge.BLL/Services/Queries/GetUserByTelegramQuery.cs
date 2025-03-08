@@ -17,17 +17,17 @@ public class GetUserByTelegramQuery : BaseQuery<User>
         _telegramUserName = telegramUserName;
     }
 
-    public override async Task<User?> GetFromCache()
+    protected override async Task<User?> GetFromCache()
     {
         return await Task.FromResult((User?)_memoryCache.Get(_telegramUserName));
     }
 
-    public override async Task<User?> GetFromDb()
+    protected override async Task<User?> GetFromDb()
     {
         return await _userRepository.FirstOrDefaultAsync(user => user.TelegramUserName == _telegramUserName);
     }
 
-    public override async Task WriteToCache(User data)
+    protected override async Task WriteToCache(User data)
     {
         var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
         await Task.FromResult(_memoryCache.Set(_telegramUserName, data, cacheEntryOptions));

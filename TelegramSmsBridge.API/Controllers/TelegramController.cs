@@ -5,6 +5,10 @@ using Telegram.Bot.Types;
 using TelegramSmsBridge.BLL.Models;
 using TelegramSmsBridge.DAL.Entities;
 using TelegramSmsBridge.BLL.Services;
+using TelegramSmsBridge.DAL.Repository;
+using Microsoft.Extensions.Caching.Memory;
+using TelegramSmsBridge.BLL.Services.Queries;
+using TelegramSmsBridge.BLL.Services.Commands;
 
 namespace TelegramSmsBridge.API.Controllers;
 
@@ -13,13 +17,26 @@ public class TelegramController : BaseApiController
     private readonly TelegramSettings _telegramSettings;
     private readonly ILogger<UpdateHandler> _logger;
     private readonly ITelegramBotClient _botClient;
+    private readonly IMongoDbRepository<Update> _updateRepository;
+    private readonly IMongoDbRepository<SmsMessage> _smsMessageRepository;
+    private readonly IMemoryCache _memoryCache;
 
-    public TelegramController(IOptions<TelegramSettings> telegramSettings, ILogger<UpdateHandler> logger, ITelegramBotClient botClient)
+    public TelegramController(
+        IOptions<TelegramSettings> telegramSettings,
+        ILogger<UpdateHandler> logger,
+        ITelegramBotClient botClient,
+        IMemoryCache memoryCache,
+        IMongoDbRepository<SmsMessage> smsMessageRepository,
+        IMongoDbRepository<Update> updateRepository)
     {
         _telegramSettings = telegramSettings.Value;
         _logger = logger;
         _botClient = botClient;
+        _memoryCache = memoryCache;
+        _smsMessageRepository = smsMessageRepository;
+        _updateRepository = updateRepository;
     }
+
 
     [HttpGet]
     public IActionResult Get()
@@ -40,10 +57,12 @@ public class TelegramController : BaseApiController
         return Ok(chatId);
     }
 
-    private Task<long?> GetChatIdForUserAsync(string userName)
+    private async Task<long?> GetChatIdForUserAsync(string userName)
     {
-        var update = UserUpdateCollection.Instance.FirstOrDefaultUpdate(update => update?.Message?.Chat?.Username == userName);
-        return Task.FromResult(update?.Message?.Chat.Id);
+        var query = new GetUpdateByUserNameQuery(_memoryCache, _updateRepository, userName);
+        var update = await query.GetData();
+
+        return update?.Message?.Chat.Id;
     }
 
     [HttpPost("sendMessage")]
@@ -51,7 +70,8 @@ public class TelegramController : BaseApiController
     {
         try
         {
-            UserUpdateCollection.Instance.RecentMessagesByChat[chatId] = message;
+            var addOrUpdateCommand = new AddOrUpdateSmsMessageCommand(_smsMessageRepository, _memoryCache, message);
+            await addOrUpdateCommand.ExecuteAsync();
 
             await _botClient.SendMessage(chatId, message.ToString());
             return Ok("Message was sent");
@@ -74,8 +94,9 @@ public class TelegramController : BaseApiController
         {
             return Forbid();
         }
-
-        UserUpdateCollection.Instance.AddUpdate(update);
+        
+        var addUpdateCommand = new AddUpdateCommand(_updateRepository, update);
+        await addUpdateCommand.ExecuteAsync();
         return await ProcessUpdateAsync(bot, update, handleUpdateService, ct);
     }
 

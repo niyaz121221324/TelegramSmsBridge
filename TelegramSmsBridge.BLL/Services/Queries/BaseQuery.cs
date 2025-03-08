@@ -19,9 +19,9 @@ public abstract class BaseQuery<T>
         return cache;
     }
 
-    public abstract Task<T?> GetFromCache();
+    protected abstract Task<T?> GetFromCache();
 
-    public abstract Task<T?> GetFromDb();
+    protected abstract Task<T?> GetFromDb();
     
-    public abstract Task WriteToCache(T data);
+    protected abstract Task WriteToCache(T data);
 }

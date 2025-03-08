@@ -1,17 +1,28 @@
+using Microsoft.Extensions.Caching.Memory;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
+using TelegramSmsBridge.BLL.Services.Queries;
 using TelegramSmsBridge.DAL.Entities;
+using TelegramSmsBridge.DAL.Repository;
 
 namespace TelegramSmsBridge.BLL.Services.Strategies;
 
 class TextResponseNotificationStrategy : INotificationStrategy
 {
+    private readonly IMemoryCache _memoryCache;
+    private readonly IMongoDbRepository<SmsMessage> _smsMessageRepository;
     private readonly ITelegramBotClient _botClient;
     private readonly TelegramHub _telegramHub;
 
-    public TextResponseNotificationStrategy(ITelegramBotClient botClient, TelegramHub telegramHub)
+    public TextResponseNotificationStrategy(
+        IMemoryCache memoryCache, 
+        IMongoDbRepository<SmsMessage> smsMessageRepository, 
+        ITelegramBotClient botClient, 
+        TelegramHub telegramHub)
     {
+        _memoryCache = memoryCache;
+        _smsMessageRepository = smsMessageRepository;
         _botClient = botClient;
         _telegramHub = telegramHub;
     }
@@ -24,7 +35,7 @@ class TextResponseNotificationStrategy : INotificationStrategy
             return;    
         }
 
-        var smsMessage = GetSmsMessageToSend(message);
+        var smsMessage = await GetSmsMessageToSend(message);
         
         if (smsMessage != null && !string.IsNullOrEmpty(message?.From?.Username))
         {
@@ -53,16 +64,19 @@ class TextResponseNotificationStrategy : INotificationStrategy
         await _botClient.SendMessage(message.Chat, responseText, replyMarkup: new ReplyKeyboardRemove());
     }
 
-    private SmsMessage? GetSmsMessageToSend(Message message)
+    private async Task<SmsMessage?> GetSmsMessageToSend(Message message)
     {
         if (message.ReplyToMessage != null)
         {
             return new SmsMessage(message);
         }
+
+        var query = new GetSmsMessageByChatIdQuery(_memoryCache, _smsMessageRepository, message.Chat.Id);
+        var recentMessage = await query.GetData();
         
-        if (UserUpdateCollection.Instance.RecentMessagesByChat.TryGetValue(message.Chat.Id, out var recentMessage))
+        if (recentMessage != null)
         {
-            return new SmsMessage(recentMessage.ChatId, message?.Text ?? string.Empty, recentMessage.PhoneNumber);
+            return recentMessage;
         }
 
         return null;
