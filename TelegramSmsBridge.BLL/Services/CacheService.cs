@@ -5,39 +5,40 @@ namespace TelegramSmsBridge.BLL.Services;
 public class CacheService<T> : ICacheService<T> where T : class
 {
     private readonly IMemoryCache _memoryCache;
-    
+    private readonly MemoryCacheEntryOptions _cacheOptions;
+
     public CacheService(IMemoryCache memoryCache)
     {
         _memoryCache = memoryCache;
+        _cacheOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
     }
 
-    public void Add(string key, T value)
+    private static string GetCacheKey(string key)
     {
-        var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
-        var cacheKey = $"{nameof(T)}:{key}";
+        return $"{typeof(T).Name}:{key}";
+    } 
 
-        _memoryCache.Set(cacheKey, value, cacheEntryOptions);
+    public void Add(string key, T value) 
+    {
+        _memoryCache.Set(GetCacheKey(key), value, _cacheOptions);
     }
 
-    public T? Get(string key)
-    {
-        var cacheKey = $"{nameof(T)}:{key}";
-        return _memoryCache.TryGetValue(cacheKey, out T? value) ? value : default;
+    public T? Get(string key) 
+    { 
+        return _memoryCache.TryGetValue(GetCacheKey(key), out T? value) ? value : default; 
     }
 
     public void Update(string key, T newValue)
     {
-        var cacheKey = $"{nameof(T)}:{key}";
+        var cacheKey = GetCacheKey(key);
         if (_memoryCache.TryGetValue(cacheKey, out _))
         {
-            var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
-            _memoryCache.Set(cacheKey, newValue, cacheEntryOptions);
+            _memoryCache.Set(cacheKey, newValue, _cacheOptions);
         }
     }
 
-    public void Remove(string key)
-    {
-        var cacheKey = $"{nameof(T)}:{key}";
-        _memoryCache.Remove(cacheKey);
+    public void Remove(string key) 
+    { 
+        _memoryCache.Remove(GetCacheKey(key)); 
     }
 }
