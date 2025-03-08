@@ -6,7 +6,6 @@ using TelegramSmsBridge.BLL.Models;
 using TelegramSmsBridge.DAL.Entities;
 using TelegramSmsBridge.BLL.Services;
 using TelegramSmsBridge.DAL.Repository;
-using Microsoft.Extensions.Caching.Memory;
 using TelegramSmsBridge.BLL.Services.Queries;
 using TelegramSmsBridge.BLL.Services.Commands;
 
@@ -19,20 +18,23 @@ public class TelegramController : BaseApiController
     private readonly ITelegramBotClient _botClient;
     private readonly IMongoDbRepository<Update> _updateRepository;
     private readonly IMongoDbRepository<SmsMessage> _smsMessageRepository;
-    private readonly IMemoryCache _memoryCache;
+    private readonly ICacheService<SmsMessage> _smsMessageCacheService;
+    private readonly ICacheService<Update> _updateCacheService;
 
     public TelegramController(
         IOptions<TelegramSettings> telegramSettings,
         ILogger<UpdateHandler> logger,
         ITelegramBotClient botClient,
-        IMemoryCache memoryCache,
+        ICacheService<SmsMessage> smsMessageCacheService,
+        ICacheService<Update> updateCacheService,
         IMongoDbRepository<SmsMessage> smsMessageRepository,
         IMongoDbRepository<Update> updateRepository)
     {
         _telegramSettings = telegramSettings.Value;
         _logger = logger;
         _botClient = botClient;
-        _memoryCache = memoryCache;
+        _smsMessageCacheService = smsMessageCacheService;
+        _updateCacheService = updateCacheService;
         _smsMessageRepository = smsMessageRepository;
         _updateRepository = updateRepository;
     }
@@ -59,7 +61,7 @@ public class TelegramController : BaseApiController
 
     private async Task<long?> GetChatIdForUserAsync(string userName)
     {
-        var query = new GetUpdateByUserNameQuery(_memoryCache, _updateRepository, userName);
+        var query = new GetUpdateByUserNameQuery(_updateCacheService, _updateRepository, userName);
         var update = await query.GetData();
 
         return update?.Message?.Chat.Id;
@@ -70,7 +72,7 @@ public class TelegramController : BaseApiController
     {
         try
         {
-            var addOrUpdateCommand = new AddOrUpdateSmsMessageCommand(_smsMessageRepository, _memoryCache, message);
+            var addOrUpdateCommand = new AddOrUpdateSmsMessageCommand(_smsMessageRepository, _smsMessageCacheService, message);
             await addOrUpdateCommand.ExecuteAsync();
 
             await _botClient.SendMessage(chatId, message.ToString());

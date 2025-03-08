@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Caching.Memory;
 using MongoDB.Driver;
 using TelegramSmsBridge.DAL.Entities;
 using TelegramSmsBridge.DAL.Repository;
@@ -7,20 +6,20 @@ namespace TelegramSmsBridge.BLL.Services.Queries;
 
 public class GetSmsMessageByChatIdQuery : BaseQuery<SmsMessage>
 {
-    private readonly IMemoryCache _memoryCache;
+    private readonly ICacheService<SmsMessage> _chaceService;
     private readonly IMongoDbRepository<SmsMessage> _repository;
     private readonly long _chatId;
 
-    public GetSmsMessageByChatIdQuery(IMemoryCache memoryCache, IMongoDbRepository<SmsMessage> repository, long chatId)
+    public GetSmsMessageByChatIdQuery(ICacheService<SmsMessage> chaceService, IMongoDbRepository<SmsMessage> repository, long chatId)
     {
-        _memoryCache = memoryCache;
+        _chaceService = chaceService;
         _repository = repository;
         _chatId = chatId;
     }
 
     protected override async Task<SmsMessage?> GetFromCache()
     {
-        return await Task.FromResult((SmsMessage?)_memoryCache.Get(_chatId));
+        return await Task.FromResult(_chaceService.Get(_chatId.ToString()));
     }
 
     protected override async Task<SmsMessage?> GetFromDb()
@@ -31,6 +30,6 @@ public class GetSmsMessageByChatIdQuery : BaseQuery<SmsMessage>
 
     protected override async Task WriteToCache(SmsMessage data)
     {
-        await Task.Run(() => _memoryCache.Set(data.ChatId ,data));
+        await Task.Run(() => _chaceService.Add(data.ChatId.ToString(), data));
     }
 }

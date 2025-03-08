@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Caching.Memory;
 using MongoDB.Driver;
 using TelegramSmsBridge.DAL.Entities;
 using TelegramSmsBridge.DAL.Repository;
@@ -8,13 +7,13 @@ namespace TelegramSmsBridge.BLL.Services.Commands;
 public class AddOrUpdateSmsMessageCommand : BaseAddOrUpdateCommand<SmsMessage>
 {
     private readonly IMongoDbRepository<SmsMessage> _repository;
-    private readonly IMemoryCache _memoryCache;
+    private readonly ICacheService<SmsMessage> _cacheService;
 
-    public AddOrUpdateSmsMessageCommand(IMongoDbRepository<SmsMessage> repository, IMemoryCache memoryCache, SmsMessage entity) 
-        : base(entity)
+    public AddOrUpdateSmsMessageCommand(IMongoDbRepository<SmsMessage> repository, ICacheService<SmsMessage> cacheService,
+        SmsMessage entity) : base(entity)
     {
         _repository = repository;
-        _memoryCache = memoryCache;
+        _cacheService = cacheService;
     }
 
     protected override async Task AddToDb(SmsMessage entity)
@@ -30,13 +29,13 @@ public class AddOrUpdateSmsMessageCommand : BaseAddOrUpdateCommand<SmsMessage>
 
     protected override async Task<bool> IsCached()
     {
-        var isCached = _memoryCache.TryGetValue(Entity.ChatId.ToString(), out _);
+        var isCached = _cacheService.Get(Entity.ChatId.ToString()) != null;
         return await Task.FromResult(isCached);
     }
 
     protected override async Task UpdateCache(SmsMessage entity)
     {
-        await Task.FromResult(_memoryCache.Set(entity.ChatId, entity)); 
+        await Task.Run(() => _cacheService.Update(entity.ChatId.ToString(), entity)); 
     }
 
     protected override async Task UpdateInDb(SmsMessage entity)

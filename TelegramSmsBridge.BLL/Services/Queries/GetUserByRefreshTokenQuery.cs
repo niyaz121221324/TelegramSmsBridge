@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Caching.Memory;
 using TelegramSmsBridge.DAL.Entities;
 using TelegramSmsBridge.DAL.Repository;
 
@@ -6,20 +5,20 @@ namespace TelegramSmsBridge.BLL.Services.Queries;
 
 public class GetUserByRefreshTokenQuery : BaseQuery<User>
 {
-    private readonly IMemoryCache _memoryCache;
+    private readonly ICacheService<User> _cacheService;
     private readonly IUserRepository _userRepository;
     private readonly string _refreshToken;
 
-    public GetUserByRefreshTokenQuery(IMemoryCache memoryCache, IUserRepository userRepository, string refreshToken)
+    public GetUserByRefreshTokenQuery(ICacheService<User> cacheService, IUserRepository userRepository, string refreshToken)
     {
-        _memoryCache = memoryCache;
+        _cacheService = cacheService;
         _userRepository = userRepository;
         _refreshToken = refreshToken;
     }
 
     protected override async Task<User?> GetFromCache()
     {
-        return await Task.FromResult((User?)_memoryCache.Get(_refreshToken));
+        return await Task.FromResult(_cacheService.Get(_refreshToken));
     }
 
     protected override async Task<User?> GetFromDb()
@@ -29,7 +28,6 @@ public class GetUserByRefreshTokenQuery : BaseQuery<User>
 
     protected override async Task WriteToCache(User data)
     {
-        var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
-        await Task.FromResult(_memoryCache.Set(_refreshToken, data, cacheEntryOptions));
+        await Task.Run(() => _cacheService.Add(_refreshToken, data));
     }
 }

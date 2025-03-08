@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Caching.Memory;
 using MongoDB.Driver;
 using Telegram.Bot.Types;
 using TelegramSmsBridge.DAL.Repository;
@@ -7,20 +6,20 @@ namespace TelegramSmsBridge.BLL.Services.Queries;
 
 public class GetUpdateByUserNameQuery : BaseQuery<Update>
 {
-    private readonly IMemoryCache _memoryCache;
+    private readonly ICacheService<Update> _cacheService;
     private readonly IMongoDbRepository<Update> _repository;
     private readonly string _userName;
 
-    public GetUpdateByUserNameQuery(IMemoryCache memoryCache, IMongoDbRepository<Update> repository, string userName)
+    public GetUpdateByUserNameQuery(ICacheService<Update> cacheService, IMongoDbRepository<Update> repository, string userName)
     {
-        _memoryCache = memoryCache;
+        _cacheService = cacheService;
         _repository = repository;
         _userName = userName;
     }
 
     protected override async Task<Update?> GetFromCache()
     {
-        return await Task.FromResult((Update?)_memoryCache.Get(_userName));
+        return await Task.FromResult(_cacheService.Get(_userName));
     }
 
     protected override async Task<Update?> GetFromDb()
@@ -31,6 +30,6 @@ public class GetUpdateByUserNameQuery : BaseQuery<Update>
 
     protected override async Task WriteToCache(Update data)
     {
-        await Task.Run(() => _memoryCache.Set(data.Message.From.Username, data));
+        await Task.Run(() => _cacheService.Add(data.Message.From.Username, data));
     }
 }

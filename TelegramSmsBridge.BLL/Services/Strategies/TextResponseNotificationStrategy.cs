@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Caching.Memory;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -10,18 +9,18 @@ namespace TelegramSmsBridge.BLL.Services.Strategies;
 
 class TextResponseNotificationStrategy : INotificationStrategy
 {
-    private readonly IMemoryCache _memoryCache;
+    private readonly ICacheService<SmsMessage> _cacheService;
     private readonly IMongoDbRepository<SmsMessage> _smsMessageRepository;
     private readonly ITelegramBotClient _botClient;
     private readonly TelegramHub _telegramHub;
 
     public TextResponseNotificationStrategy(
-        IMemoryCache memoryCache, 
+        ICacheService<SmsMessage> cacheService, 
         IMongoDbRepository<SmsMessage> smsMessageRepository, 
         ITelegramBotClient botClient, 
         TelegramHub telegramHub)
     {
-        _memoryCache = memoryCache;
+        _cacheService = cacheService;
         _smsMessageRepository = smsMessageRepository;
         _botClient = botClient;
         _telegramHub = telegramHub;
@@ -71,7 +70,7 @@ class TextResponseNotificationStrategy : INotificationStrategy
             return new SmsMessage(message);
         }
 
-        var query = new GetSmsMessageByChatIdQuery(_memoryCache, _smsMessageRepository, message.Chat.Id);
+        var query = new GetSmsMessageByChatIdQuery(_cacheService, _smsMessageRepository, message.Chat.Id);
         var recentMessage = await query.GetData();
         
         if (recentMessage != null)

@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Caching.Memory;
 using TelegramSmsBridge.DAL.Entities;
 using TelegramSmsBridge.DAL.Repository;
 
@@ -6,20 +5,20 @@ namespace TelegramSmsBridge.BLL.Services.Queries;
 
 public class GetUserByTelegramQuery : BaseQuery<User>
 {
-    private readonly IMemoryCache _memoryCache;
+    private readonly ICacheService<User> _cacheService;
     private readonly IUserRepository _userRepository;
     private readonly string _telegramUserName;
 
-    public GetUserByTelegramQuery(IMemoryCache memoryCache, IUserRepository userRepository, string telegramUserName)
+    public GetUserByTelegramQuery(ICacheService<User> cacheService, IUserRepository userRepository, string telegramUserName)
     {
-        _memoryCache = memoryCache;
+        _cacheService = cacheService;
         _userRepository = userRepository;
         _telegramUserName = telegramUserName;
     }
 
     protected override async Task<User?> GetFromCache()
     {
-        return await Task.FromResult((User?)_memoryCache.Get(_telegramUserName));
+        return await Task.FromResult(_cacheService.Get(_telegramUserName));
     }
 
     protected override async Task<User?> GetFromDb()
@@ -29,7 +28,6 @@ public class GetUserByTelegramQuery : BaseQuery<User>
 
     protected override async Task WriteToCache(User data)
     {
-        var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(5));
-        await Task.FromResult(_memoryCache.Set(_telegramUserName, data, cacheEntryOptions));
+        await Task.Run(() => _cacheService.Add(_telegramUserName, data));
     }
 }

@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -13,18 +12,18 @@ namespace TelegramSmsBridge.BLL.Services;
 
 public class UpdateHandler : IUpdateHandler
 {
-    private readonly IMemoryCache _memoryCache;
+    private ICacheService<SmsMessage> _smsMessageCacheService;
     private readonly IMongoDbRepository<SmsMessage> _smsMessageRepository;
     private readonly ILogger<UpdateHandler> _logger;
     private readonly TelegramHub _telegramHub;
 
     public UpdateHandler(
-        IMemoryCache memoryCache, 
+        ICacheService<SmsMessage> smsMessageCacheService,
         IMongoDbRepository<SmsMessage> smsMessageRepository, 
         ILogger<UpdateHandler> logger, 
         TelegramHub telegramHub)
     {
-        _memoryCache = memoryCache;
+        _smsMessageCacheService = smsMessageCacheService;
         _smsMessageRepository = smsMessageRepository;
         _logger = logger;
         _telegramHub = telegramHub;
@@ -83,7 +82,12 @@ public class UpdateHandler : IUpdateHandler
 
         if (message.Type == MessageType.Text)
         {
-            context.SetStrategy(new TextResponseNotificationStrategy(_memoryCache, _smsMessageRepository, botClient, _telegramHub));
+            context.SetStrategy(new TextResponseNotificationStrategy(
+                _smsMessageCacheService, 
+                _smsMessageRepository, 
+                botClient, 
+                _telegramHub
+            ));
         }
     
         await context.SendMessageAsync();

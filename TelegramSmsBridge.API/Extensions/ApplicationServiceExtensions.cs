@@ -42,12 +42,13 @@ public static class ApplicationServiceExtensions
 
         // Настраиваем подключение к бд пользователей
         ConfigureUsersDb(services, configuration);
-        
-        // Добавляем сервис для кещирования in-memory cache
-        services.AddMemoryCache();
 
         // Настраиваем подключение к NoSql бд MongoDb
         ConfigureMongoDb(services, configuration);
+
+        // Добавляем сервис для кещирования in-memory cache
+        services.AddMemoryCache();
+        services.AddTransient(typeof(ICacheService<>), typeof(CacheService<>));
 
         return services;
     }
