@@ -74,7 +74,7 @@ public class TelegramController : BaseApiController
     {
         try
         {
-            await _commandInvoker.ExecuteCommand(new AddOrUpdateSmsMessageCommand(
+            await _commandInvoker.ExecuteCommandAsync(new AddOrUpdateSmsMessageCommand(
                 _smsMessageRepository, 
                 _smsMessageCacheService, 
                 message
@@ -102,7 +102,7 @@ public class TelegramController : BaseApiController
             return Forbid();
         }
         
-        await _commandInvoker.ExecuteCommand(new AddUpdateCommand(_updateRepository, update));
+        await _commandInvoker.ExecuteCommandAsync(new AddUpdateCommand(_updateRepository, update));
         return await ProcessUpdateAsync(bot, update, handleUpdateService, ct);
     }
 
