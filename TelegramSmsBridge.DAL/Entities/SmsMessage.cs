@@ -19,6 +19,10 @@ public class SmsMessage
     /// </summary>
     public string MessageContent { get; set; }
 
+    public SmsMessage() : this(0, string.Empty, string.Empty) 
+    {
+    }
+
     public SmsMessage(long chatId, string phoneNumber, string messageContent)
     {
         ChatId = chatId;
