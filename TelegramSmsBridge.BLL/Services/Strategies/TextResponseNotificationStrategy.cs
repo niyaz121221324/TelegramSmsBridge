@@ -13,6 +13,7 @@ class TextResponseNotificationStrategy : INotificationStrategy
     private readonly IMongoDbRepository<SmsMessage> _smsMessageRepository;
     private readonly ITelegramBotClient _botClient;
     private readonly TelegramHub _telegramHub;
+    private readonly QueryHandler _queryHandler;
 
     public TextResponseNotificationStrategy(
         ICacheService<SmsMessage> cacheService, 
@@ -24,6 +25,7 @@ class TextResponseNotificationStrategy : INotificationStrategy
         _smsMessageRepository = smsMessageRepository;
         _botClient = botClient;
         _telegramHub = telegramHub;
+        _queryHandler = new QueryHandler();
     }
 
     public async Task SendNotificationAsync(Message message)
@@ -70,8 +72,11 @@ class TextResponseNotificationStrategy : INotificationStrategy
             return new SmsMessage(message);
         }
 
-        var query = new GetSmsMessageByChatIdQuery(_cacheService, _smsMessageRepository, message.Chat.Id);
-        var recentMessage = await query.GetData();
+        var recentMessage = await _queryHandler.HandleQueryAsync(new GetSmsMessageByChatIdQuery(
+            _cacheService, 
+            _smsMessageRepository, 
+            message.Chat.Id
+        ));
         
         if (recentMessage != null)
         {

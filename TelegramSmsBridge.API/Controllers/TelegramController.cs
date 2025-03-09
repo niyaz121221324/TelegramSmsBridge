@@ -20,6 +20,8 @@ public class TelegramController : BaseApiController
     private readonly IMongoDbRepository<SmsMessage> _smsMessageRepository;
     private readonly ICacheService<SmsMessage> _smsMessageCacheService;
     private readonly ICacheService<Update> _updateCacheService;
+    private readonly CommandInvoker _commandInvoker;
+    private readonly QueryHandler _queryHandler;
 
     public TelegramController(
         IOptions<TelegramSettings> telegramSettings,
@@ -37,6 +39,8 @@ public class TelegramController : BaseApiController
         _updateCacheService = updateCacheService;
         _smsMessageRepository = smsMessageRepository;
         _updateRepository = updateRepository;
+        _commandInvoker = new CommandInvoker();
+        _queryHandler = new QueryHandler();
     }
 
 
@@ -61,8 +65,7 @@ public class TelegramController : BaseApiController
 
     private async Task<long?> GetChatIdForUserAsync(string userName)
     {
-        var query = new GetUpdateByUserNameQuery(_updateCacheService, _updateRepository, userName);
-        var update = await query.GetData();
+        var update = await _queryHandler.HandleQueryAsync(new GetUpdateByUserNameQuery(_updateCacheService, _updateRepository, userName));
 
         return update?.Message?.Chat.Id;
     }
@@ -72,8 +75,11 @@ public class TelegramController : BaseApiController
     {
         try
         {
-            var addOrUpdateCommand = new AddOrUpdateSmsMessageCommand(_smsMessageRepository, _smsMessageCacheService, message);
-            await addOrUpdateCommand.ExecuteAsync();
+            await _commandInvoker.ExecuteCommand(new AddOrUpdateSmsMessageCommand(
+                _smsMessageRepository, 
+                _smsMessageCacheService, 
+                message
+            ));
 
             await _botClient.SendMessage(chatId, message.ToString());
             return Ok("Message was sent");
@@ -97,8 +103,7 @@ public class TelegramController : BaseApiController
             return Forbid();
         }
         
-        var addUpdateCommand = new AddUpdateCommand(_updateRepository, update);
-        await addUpdateCommand.ExecuteAsync();
+        await _commandInvoker.ExecuteCommand(new AddUpdateCommand(_updateRepository, update));
         return await ProcessUpdateAsync(bot, update, handleUpdateService, ct);
     }
 

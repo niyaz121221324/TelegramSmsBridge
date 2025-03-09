@@ -16,6 +16,7 @@ public class AuthController : BaseApiController
     private readonly JWTSettings _jwtSettings;
     private readonly IUserRepository _userRepository;
     private readonly ICacheService<User> _cacheService;
+    private readonly QueryHandler _queryHandler;
 
     public AuthController(
         IOptions<JWTSettings> jwtSettings, 
@@ -29,6 +30,7 @@ public class AuthController : BaseApiController
         _jwtSettings = jwtSettings.Value;
         _userRepository = userRepository;
         _cacheService = cacheService;
+        _queryHandler = new QueryHandler();
     }
 
     [HttpPost("auth")]
@@ -36,8 +38,7 @@ public class AuthController : BaseApiController
     {
         try
         {
-            var query = new GetUserByTelegramQuery(_cacheService, _userRepository, telegramUserName);
-            var user = await query.GetData();
+            var user = await _queryHandler.HandleQueryAsync(new GetUserByTelegramQuery(_cacheService, _userRepository, telegramUserName));
 
             string refreshToken = string.Empty;
 
@@ -65,8 +66,7 @@ public class AuthController : BaseApiController
     [HttpPost("refreshToken")]
     public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
     {
-        var query = new GetUserByRefreshTokenQuery(_cacheService, _userRepository, refreshToken);
-        var user = await query.GetData();
+        var user = await _queryHandler.HandleQueryAsync(new GetUserByRefreshTokenQuery(_cacheService, _userRepository, refreshToken));
 
         if (user == null || string.IsNullOrEmpty(user.TelegramUserName) || IsRefreshTokenExpired(user))
         {

@@ -1,6 +1,6 @@
 namespace TelegramSmsBridge.BLL.Services.Queries;
 
-public abstract class BaseQuery<T>
+public abstract class BaseQuery<T> : IQuery<T> where T : class
 {
     public virtual async Task<T?> GetData()
     {
