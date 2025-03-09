@@ -66,7 +66,6 @@ public class TelegramController : BaseApiController
     private async Task<long?> GetChatIdForUserAsync(string userName)
     {
         var update = await _queryHandler.HandleQueryAsync(new GetUpdateByUserNameQuery(_updateCacheService, _updateRepository, userName));
-
         return update?.Message?.Chat.Id;
     }
 
